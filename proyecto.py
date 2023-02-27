@@ -2,6 +2,8 @@ import numpy as np
 
 import pandas as pd
 
+import random
+
 lista_1=["PRECIO",
     "CALIDAD_MATERIAL",
     "AREA_PISO",
@@ -11,19 +13,46 @@ lista_1=["PRECIO",
 
 #print(lista_1)
 
+class Datos_Proyecto:
 
-datos=np.load('proyecto_training_data.npy') # cargar proyecto_training_data.npy
+    def __init__(self, nombre_archivo,lista_columnas):
+
+        self.array_total=np.load(nombre_archivo)
+        self.lista_columnas_1=lista_columnas
+
+        rows, columns = self.array_total.shape
+
+        self.cantidad_filas=rows
+
+        self.cantidad_filas_porcentaje=0
 
 
-datos_1=datos.tolist()
 
-#print(datos_1)
+    def funcion_1(self,porcentaje_reducir):
+
+        if porcentaje_reducir<1 and porcentaje_reducir>0:
+
+            self.cantidad_filas_porcentaje=(self.cantidad_filas)*porcentaje_reducir
+
+        else:
+
+            print("Valor incorrecto")
+
+        return self.array_total
 
 
-dataframe_elemento=pd.DataFrame(datos_1,
-    columns=lista_1)
+datos_1=Datos_Proyecto("proyecto_training_data.npy",lista_1)
+
+
+array_1=datos_1.funcion_1(0.2)
+
+print(array_1)
 
 
 
-print(dataframe_elemento)
+
+
+
+#matrix_1Reducida=dataframe_elemento.drop(lista_surtida, axis=1)
+
 
