@@ -5,7 +5,7 @@ import pandas as pd
 import random
 
 
-############################################# inicio ########################################
+############################################# inicio data frame ########################################
 
 #cargar datos con el nombre del archivo y el numero de columnas, tambien puede reducir en un porcentaje 
 
@@ -59,6 +59,14 @@ class Datos_Proyecto:
         else:
 
             print("Valor incorrecto")
+
+
+
+
+############################################# fin data frame ########################################
+
+
+
 
 
 lista_1=["PRECIO",
