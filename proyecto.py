@@ -6,11 +6,11 @@
 
 #------------------------------------- inicio paquetes necesarios -------------------------------------
 
-import numpy as np
+import numpy as np # paquete para arrays
 
-import pandas as pd
+import pandas as pd # paquete para dataframes
 
-import random
+import random # se uso este paquete porue se queria que los valores para reducir el porcentaje fuera aleatorio
 
 #------------------------------------- fin paquetes necesarios -------------------------------------
 
@@ -88,23 +88,39 @@ class Datos_Proyecto:
             print("Valor incorrecto")
 
 
+    def valor_max_med_min_ptp_desv(self,list_num_int,redondear): #metodo para obtener los valores max_min_medio_ptp_desvi, ingresar 
 
-    def media_columnas(self): #metodo para obtener los valores medios
-
-        dic_valores_medios={}
+        dic_val_max_med_min_ptp_desv={"VALORES":("MAXIMO","MEDIA","MINIMO","PEAK TO PEAK","DESVIACION")}
 
         for i in self.lista_columnas_1:
 
-            data_columna=(self.data_Reducido_trabajar[i].dropna()).values.tolist()
+            data_1=self.data_Reducido_trabajar[i] #DATAFRAME DE CADA COLUMNA i 
 
-            valor_medio=sum(data_columna)/len(data_columna)
+            val_max=data_1.max() # obtener el valor maximo del dataframe
+            val_med=data_1.mean() # obtener el valor medio del dataframe
+            val_min=data_1.min() # obtener el valor minimo del dataframe 
+            val_des=data_1.dropna().std() # obtener la desviacion estandar quitando los nan
+            val_ptp=np.ptp(data_1.dropna()) # obtener el peak to peak quitando los nan
 
-            dic_valores_medios[i]=round(valor_medio, 3)
+            val_cancatenados=[val_max,val_med,val_min,val_ptp,val_des] # hacer una lista de los valores
 
-        return dic_valores_medios
+            if list_num_int.count(i)>0:
+
+                val_cancatenados = list(map(int, val_cancatenados)) # redondear enteros cuando la columna lo requiera
+
+            else:
+
+                val_cancatenados =[round(i,redondear) for i in val_cancatenados] # redondear hasta la cifra indicada
 
 
+            val_cancatenados_1=tuple(val_cancatenados) # convertir en tupla la lista
 
+
+            dic_val_max_med_min_ptp_desv[i]=val_cancatenados_1 # guardar en el diccionario la tupla con los valores segun la columna
+
+        data_valores = pd.DataFrame(dic_val_max_med_min_ptp_desv) # crear un dataframe apartir de un diccionario
+            
+        return data_valores #regresa un dataframe con todos los valores
 
 #-------------------------------------  fin data frame cargar datos -------------------------------------
 
@@ -149,24 +165,17 @@ print("\n")
 
 ######################################################################################################
 
-#------------------------------------- inicio data frame cargar datos -------------------------------------
+#------------------------------------- inicio max_min_medio_ptp_desvi -------------------------------------
 
-dic_valores_medios=datos_1.media_columnas()
-
-for i in dic_valores_medios:
-
-    print(i)
-    print(dic_valores_medios[i])
-    print()
+lista_enteros=["AÑO_CONSTRUCCION"] # columnas que deben ser enteros
 
 
+#ingresar los valores de la lista de las columnas que deben ser enteros y el valor de los decimales
+data_valores=datos_1.valor_max_med_min_ptp_desv(lista_enteros,4) #obtener la media de cada columna en un diccionario
 
+#------------------------------------- fin  max_min_medio_ptp_desvi ------------------------------------------
 
-
-
-#------------------------------------- fin data frame cargar datos -----------------------------------------
-
-
+print(data_valores)
 
 ######################################################################################################
 ######################################################################################################
