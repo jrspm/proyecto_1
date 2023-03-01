@@ -1,11 +1,32 @@
+
+######################################################################################################
+################################################ PASO 1 ##############################################
+# Crear un entorno de anaconda con los paquetes que considere necesarios.
+######################################################################################################
+
+#------------------------------------- inicio paquetes necesarios -------------------------------------
+
 import numpy as np
 
 import pandas as pd
 
 import random
 
+#------------------------------------- fin paquetes necesarios -------------------------------------
 
-############################################# inicio data frame ########################################
+######################################################################################################
+######################################################################################################
+######################################################################################################
+######################################################################################################
+
+
+######################################################################################################
+################################################ PASO 2 ##############################################
+# Usando sclicing con NumPy separar los datos en 2 datasets: entrenamiento(80 %) y validación
+# y pruebas(20 %).
+######################################################################################################
+
+#-------------------------------------  inicio data frame cargar datos -------------------------------------
 
 #cargar datos con el nombre del archivo y el numero de columnas, tambien puede reducir en un porcentaje 
 
@@ -25,8 +46,14 @@ class Datos_Proyecto:
 
         self.dataframe_total=pd.DataFrame(self.array_tolist, columns=self.lista_columnas_1) # crear el dataframe y nombrar las columnas
 
+        self.data_Reducido_trabajar=self.dataframe_total
 
-    def funcion_1(self,porcentaje_reducir): #metodo para reducir el dataframe, porcentaje a reducir
+        self.data_Reducido_comparar=self.dataframe_total
+
+
+
+
+    def reducir_data(self,porcentaje_reducir): #metodo para reducir el dataframe, porcentaje a reducir
 
         lista_reducir=[]
 
@@ -50,11 +77,11 @@ class Datos_Proyecto:
 
             lista_reducida_trabajar=list(set_range_cantida_filas.difference(set(lista_reducir))) #diferencia de conjuntos, lista de los valores a trabajar
 
-            data_Reducido_trabajar=self.dataframe_total.drop(lista_reducir, axis=0) #dataframe de las filas que se trabajaran
+            self.data_Reducido_trabajar=self.dataframe_total.drop(lista_reducir, axis=0) #dataframe de las filas que se trabajaran
 
-            data_Reducido_comparar=self.dataframe_total.drop(lista_reducida_trabajar, axis=0) #dataframe de las filas que se compararan
+            self.data_Reducido_comparar=self.dataframe_total.drop(lista_reducida_trabajar, axis=0) #dataframe de las filas que se compararan
 
-            return data_Reducido_trabajar, data_Reducido_comparar
+            return self.data_Reducido_trabajar, self.data_Reducido_comparar
 
         else:
 
@@ -62,33 +89,93 @@ class Datos_Proyecto:
 
 
 
+    def media_columnas(self): #metodo para obtener los valores medios
 
-############################################# fin data frame ########################################
+        dic_valores_medios={}
+
+        for i in self.lista_columnas_1:
+
+            data_columna=(self.data_Reducido_trabajar[i].dropna()).values.tolist()
+
+            valor_medio=sum(data_columna)/len(data_columna)
+
+            dic_valores_medios[i]=round(valor_medio, 3)
+
+        return dic_valores_medios
 
 
 
 
+#-------------------------------------  fin data frame cargar datos -------------------------------------
 
 lista_1=["PRECIO",
     "CALIDAD_MATERIAL",
     "AREA_PISO",
     "TOTAL_HABITACIONES",
     "AÑO_CONSTRUCCION",
-    "FRENTE"]
+    "FRENTE"] # LISTA DE LOS NOMBRES DE LAS COLUMNAS
 
-datos_1=Datos_Proyecto("proyecto_training_data.npy",lista_1)
-
-
-data_Reducido_from_datos_1=datos_1.funcion_1(0.2)
+datos_1=Datos_Proyecto("proyecto_training_data.npy",lista_1) # leer los datos
 
 
-print(datos_1.dataframe_total)
+data_Reducido_from_datos_1=datos_1.reducir_data(0.2) # reducir los datos en el 20%
 
-print(data_Reducido_from_datos_1[0])
 
-print(data_Reducido_from_datos_1[1])
+print(datos_1.dataframe_total) # DATAFRAME DE TODOS LOS DATOS 
+
+print(data_Reducido_from_datos_1[0]) # DATAFRAME  entrenamiento(80 %)
+
+print(data_Reducido_from_datos_1[1]) # DATAFRAME pruebas(20 %)
+
+print("\n")
+
+######################################################################################################
+######################################################################################################
+######################################################################################################
+######################################################################################################
+
+
+
+######################################################################################################
+################################################ PASO 3 ##############################################
+# Análisis exploratorio de datos: Para cada variable en el dataset calcular((usando numpy o
+# pandas):
+
+# media
+# valor máximo
+# valor mínimo
+# valor rango(peak to peak, no el rango del tensor que por ser vector sabemos que es 1)
+# desvianción estándar
+
+######################################################################################################
+
+#------------------------------------- inicio data frame cargar datos -------------------------------------
+
+dic_valores_medios=datos_1.media_columnas()
+
+for i in dic_valores_medios:
+
+    print(i)
+    print(dic_valores_medios[i])
+    print()
+
+
+
+
+
+
+#------------------------------------- fin data frame cargar datos -----------------------------------------
+
+
+
+######################################################################################################
+######################################################################################################
+######################################################################################################
+######################################################################################################
+
 
 input()
+
 
 #matrix_1Reducida=dataframe_elemento.drop(lista_surtida, axis=1)
 
