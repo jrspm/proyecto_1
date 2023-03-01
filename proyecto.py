@@ -12,6 +12,10 @@ import pandas as pd # paquete para dataframes
 
 import random # se uso este paquete porue se queria que los valores para reducir el porcentaje fuera aleatorio
 
+import seaborn as sns
+
+import matplotlib.pyplot as plt
+
 #------------------------------------- fin paquetes necesarios -------------------------------------
 
 ######################################################################################################
@@ -115,12 +119,72 @@ class Datos_Proyecto:
 
             val_cancatenados_1=tuple(val_cancatenados) # convertir en tupla la lista
 
-
             dic_val_max_med_min_ptp_desv[i]=val_cancatenados_1 # guardar en el diccionario la tupla con los valores segun la columna
 
         data_valores = pd.DataFrame(dic_val_max_med_min_ptp_desv) # crear un dataframe apartir de un diccionario
             
         return data_valores #regresa un dataframe con todos los valores
+
+    def histograma_parejas(self,list_graf): #metodo para obtener los valores max_min_medio_ptp_desvi, ingresar 
+
+        for i in list_graf:
+
+            #------- inicio comprobar distribucion --------------------
+
+            #self.data_Reducido_trabajar.sort_values(i[1])
+
+            #data_1=self.data_Reducido_trabajar[i].dropna() #DATAFRAME DE CADA COLUMNA i
+
+            #data_1=data_1.value_counts() #para contar la catidad de valores que hay de un mismo valor 
+
+            #data_1_dic=data_1.to_dict()
+
+            #keys = data_1_dic.keys()
+            #sorted_keys = sorted(keys)
+
+            #data_2_dic = {key:data_1_dic[key] for key in sorted_keys}
+
+            #print(data_2_dic)
+
+            #------- fin comprobar distribucion --------------------              
+
+            #------- inicio forma 1 ------------
+
+            #self.data_Reducido_trabajar[i].dropna().hist()
+
+            #plt.show()
+
+            #------- fin forma 1 ------------
+
+            #------- inicio forma 2 ------------
+
+            #data_1=self.data_Reducido_trabajar[i].dropna() #DATAFRAME DE CADA COLUMNA i
+       
+            #res = pd.Series(data_1,name="Range")
+
+            #plot = sns.distplot(res,rug=False,hist=True)
+            
+            #plt.show()
+
+            #------- fin forma 2 ------------
+
+            #------- inicio forma 3 ------------
+
+            data_1=self.data_Reducido_trabajar[i].dropna().values.tolist() #DATAFRAME DE CADA COLUMNA i    
+
+            df = pd.DataFrame(data_1, columns=[i])
+
+            plot = sns.displot(data = df, x=i )
+
+            plt.title("")
+            plt.xticks(fontsize=9, rotation=45)
+            plt.xlabel(i,fontsize=12)
+            plt.ylabel('Counted',fontsize=12)
+            plt.tight_layout()
+            
+        plt.show()
+        
+            #------- fin forma 3 ------------
 
 #-------------------------------------  fin data frame cargar datos -------------------------------------
 
@@ -182,6 +246,35 @@ print(data_valores)
 ######################################################################################################
 ######################################################################################################
 
+######################################################################################################
+################################################ PASO 4 ##############################################
+
+#------------------------------------- inicio imprimir histogramas -------------------------------------
+
+#ingresar el listado de las parejas de las columnas que se desean graficar [[y1,x1],[y2,x2]]
+
+lista_of_columns=["PRECIO","CALIDAD_MATERIAL","AREA_PISO","TOTAL_HABITACIONES","AÑO_CONSTRUCCION","FRENTE"]
+
+datos_1.histograma_parejas(lista_of_columns)
+
+#------------------------------------- fin imprimir histogramas------------------------------------------
+
+
+######################################################################################################
+######################################################################################################
+######################################################################################################
+######################################################################################################
+
+######################################################################################################
+################################################ PASO 5 ##############################################
+
+
+
+
+######################################################################################################
+######################################################################################################
+######################################################################################################
+######################################################################################################
 
 input()
 
