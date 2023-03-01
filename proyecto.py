@@ -4,6 +4,10 @@
 # Crear un entorno de anaconda con los paquetes que considere necesarios.
 ######################################################################################################
 
+# py -m pip install seaborn  para actulizar paquetes en python CMD, cuando si funciona en anaconda
+
+# si no corre usar power shell para ver los errores
+
 #------------------------------------- inicio paquetes necesarios -------------------------------------
 
 import numpy as np # paquete para arrays
@@ -108,7 +112,7 @@ class Datos_Proyecto:
 
             val_cancatenados=[val_max,val_med,val_min,val_ptp,val_des] # hacer una lista de los valores
 
-            if list_num_int.count(i)>0:
+            if list_num_int.count(i)>0: #comparar si una de las columnas esta en el listado de enteros
 
                 val_cancatenados = list(map(int, val_cancatenados)) # redondear enteros cuando la columna lo requiera
 
@@ -170,21 +174,82 @@ class Datos_Proyecto:
 
             #------- inicio forma 3 ------------
 
-            data_1=self.data_Reducido_trabajar[i].dropna().values.tolist() #DATAFRAME DE CADA COLUMNA i    
+            try:
 
-            df = pd.DataFrame(data_1, columns=[i])
+                data_1=self.data_Reducido_trabajar[i].dropna().values.tolist() #DATAFRAME DE CADA COLUMNA i    
 
-            plot = sns.displot(data = df, x=i )
+                df = pd.DataFrame(data_1, columns=[i]) # nombrar a la columna 
 
-            plt.title("")
-            plt.xticks(fontsize=9, rotation=45)
-            plt.xlabel(i,fontsize=12)
-            plt.ylabel('Counted',fontsize=12)
-            plt.tight_layout()
-            
-        plt.show()
-        
+                plot = sns.displot(data = df, x=i )
+
+                plt.title("")
+                plt.xticks(fontsize=9, rotation=45)
+                plt.xlabel(i,fontsize=12)
+                plt.ylabel('Counted',fontsize=12)
+                plt.tight_layout()
+                
+            except:
+                print("ERROR AL GENERAR LA GRAFICA DE LOS HISTOGRAMAS")
+                pass
+
             #------- fin forma 3 ------------
+
+        plt.show()
+
+    def factor_correlacion(self,lista_graf_2):
+
+        list_corr=[]
+
+        cont_1=0
+
+        lista_columns_2=[]
+
+        try:
+
+            for i in lista_graf_2:
+
+                cont_1+=1
+
+                data_1=self.data_Reducido_trabajar[[i[1],i[0]]].dropna()
+
+                corr_1=data_1.corr().values.tolist()
+
+                key=i[1]+" VS "+i[0]
+
+                corr_value=round(corr_1[0][1],4)
+
+                lista_columns_2.append(key)
+
+                list_corr.append(corr_value)
+
+                array_data_1=data_1.values.tolist()
+
+                array2=np.reshape(array_data_1,-1)
+
+                lista_x=array2[0:-1:2]
+
+                lista_y=array2[1::2]          
+
+
+                plt.scatter(lista_x,lista_y)
+                plt.title(f"{key} ---- Corr:{corr_value}", fontsize = 12)
+                plt.xticks(fontsize=9, rotation=45)
+                plt.xlabel(i[1],fontsize=12)
+                plt.ylabel(i[0],fontsize=12)
+                plt.tight_layout()
+                plt.show()
+
+
+            data_valores_corr = pd.DataFrame(list_corr, index=lista_columns_2, columns=["CORRELATIVO"])
+
+            return data_valores_corr
+
+        except: 
+            print("Error al generar las graficas de las correlaciones")
+            pass
+
+
+
 
 #-------------------------------------  fin data frame cargar datos -------------------------------------
 
@@ -208,6 +273,8 @@ print(data_Reducido_from_datos_1[0]) # DATAFRAME  entrenamiento(80 %)
 print(data_Reducido_from_datos_1[1]) # DATAFRAME pruebas(20 %)
 
 print("\n")
+
+
 
 ######################################################################################################
 ######################################################################################################
@@ -239,7 +306,9 @@ data_valores=datos_1.valor_max_med_min_ptp_desv(lista_enteros,4) #obtener la med
 
 #------------------------------------- fin  max_min_medio_ptp_desvi ------------------------------------------
 
-print(data_valores)
+#print(data_valores)
+
+
 
 ######################################################################################################
 ######################################################################################################
@@ -268,8 +337,26 @@ datos_1.histograma_parejas(lista_of_columns)
 ######################################################################################################
 ################################################ PASO 5 ##############################################
 
+#Para cada variable independiente x :
+
+#1. Calcular el coeficiente de correlación entre x y y.
+#2. Graficar x vs y(scatterplot) usando matplotlib.
+#3. Colocar el coeficiente de correlación y colocarlo como parte del título de la gráfica.
+#4. Basado en la gráfica y el coeficiente de correlación de cada par x,y elegir las 2 variables
+#   con más potencial predictivo es decir las 2 variables que presentan mayor correlación
+#   entre dicha variable y la variable dependiente.
+
+lista_graf_2=[["PRECIO","PRECIO"],
+    ["PRECIO","CALIDAD_MATERIAL"],
+    ["PRECIO","AREA_PISO"],
+    ["PRECIO","TOTAL_HABITACIONES"],
+    ["PRECIO","AÑO_CONSTRUCCION"],
+    ["PRECIO","FRENTE"]] 
 
 
+data_valores_corr=datos_1.factor_correlacion(lista_graf_2)
+
+print(data_valores_corr)
 
 ######################################################################################################
 ######################################################################################################
