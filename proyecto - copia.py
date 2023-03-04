@@ -403,7 +403,7 @@ class Datos_Proyecto:
                 # input()
                 # print("..................................................................")
 
-                if cont_4==10:
+                if cont_4==1:
 
                     cont_4=0
 
@@ -431,18 +431,22 @@ class Datos_Proyecto:
                     data_2 = data_2.append(nuevo_registro, ignore_index=True)
 
 
-                    data_2
-
-                    print(data_2)
-
                     dic_epoca_bo_b1[cont_1]=[b0_0,b1_1]
 
-                    data_valores_error = data_2.sort_values('error',ascending=True)
+                    data_2 = data_2.sort_values('error',ascending=True)
 
-                                        
+                    val_med=data_2["error"].mean()
 
-                    input("PRESIONE ENTER PARA CONTINUAR")
-                    print()
+                    data_menor_media = data_2.loc[data_2['error'] < val_med]
+
+                    list_epochs_menor_media=set(data_menor_media['epoch'].values.tolist())
+
+                    keys_dic=set(dic_epoca_bo_b1.keys())
+
+                    keys_dic=list_epochs_menor_media.intersection(keys_dic)
+
+                    input()
+
 
                     fig = plt.figure(figsize = (9,6))
                     ax =  fig.add_axes([0.1,0.1,0.7,0.7])
@@ -454,16 +458,26 @@ class Datos_Proyecto:
                     array_list_1=[1]*(len(lista_x))
                     ax.scatter(lista_x,lista_y)
 
-                    for contador, i in enumerate(list_b1, start=0):
+                    cont_5=0
 
-                        vect_1=np.array([i])
+                    for i in keys_dic:
+
+                        i=int(i)
+
+                        vect_1=np.array([dic_epoca_bo_b1[i][1]])
                         vect_2=np.reshape(lista_x,(-1,1))
                         vect_b1x=np.dot(vect_2,vect_1)
-                        vect_3=np.array([list_bo[contador]])
+                        vect_3=np.array([dic_epoca_bo_b1[i][0]])
                         vect_4=np.reshape(array_list_1,(-1,1))
                         vect_b0=np.dot(vect_4,vect_3)
                         y = vect_b1x+vect_b0
                         ax.plot(lista_x, y, '-r', label='Y=b1x+b0')
+
+                        cont_5+=1
+
+                        if cont_5==2:
+
+                            break
 
                     plt.show()
 
@@ -698,8 +712,8 @@ lista_graf_2=[["PRECIO","PRECIO"],
 ######################################################################################################
 
 lista_graf_2=["PRECIO","CALIDAD_MATERIAL"]
-b1=1
-b0=-500
+b1=500
+b0=-1000
 alpha=500
 
 data_entrenamiento=datos_1.entrenamiento_80(lista_graf_2,b1,b0,alpha)
