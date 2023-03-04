@@ -709,13 +709,22 @@ lista_graf_2=[["PRECIO","PRECIO"],
 ######################################################################################################
 ######################################################################################################
 ######################################################################################################
-
+print("PRIMER_ANALISIS")
 lista_graf_2=["PRECIO","CALIDAD_MATERIAL"]
 b1=5000
 b0=-1000
 alpha=500
 
 data_entrenamiento=datos_1.entrenamiento_80(lista_graf_2,b1,b0,alpha)
+
+
+lista_graf_2=["PRECIO","AREA_PISO"]
+print("SEGUNDO_ANALISIS")
+b1_2=5000
+b0_2=-1000
+alpha_2=500
+
+data_entrenamiento_2=datos_1.entrenamiento_80(lista_graf_2,b1,b0,alpha)
 
 
 input()
