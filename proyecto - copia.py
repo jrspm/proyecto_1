@@ -268,7 +268,7 @@ class Datos_Proyecto:
                 
                 pass
 
-    def entrenamiento_80(self,lista_graf_2,epoch,b1,b0,alpha):
+    def entrenamiento_80(self,lista_graf_2,error_ant,b1,b0,alpha):
 
         data_1=self.data_Reducido_trabajar[lista_graf_2].dropna()
 
@@ -278,9 +278,9 @@ class Datos_Proyecto:
 
         data_1.insert(2, "ones", array_list_1)
 
-        data_2=pd.DataFrame(columns=["b1","b0","error","epoch"])
+        data_2=pd.DataFrame(columns=["b1","b0","error","epoch","pend_1","pend_2"])
 
-        def det_error(data_1,lista_graf_2,b1_1,b0_0,alpha_1):
+        def det_error(data_1,lista_graf_2,b0_0,b1_1,b0_ant,b1_ant,error_ant):
 
             array_temp_x_1=np.array(data_1[[lista_graf_2[1],"ones"]].values.tolist())
 
@@ -300,44 +300,53 @@ class Datos_Proyecto:
 
             n_1=float(data_temp.shape[0])
 
-            n_1_2=2
+            error_actual=abs(data_temp['(y_result - y)'].sum())
 
-            n_1_2_2=n_1*n_1_2
+            pend_1=(b1_1-b1_ant)/(error_ant-*2error_actual)
+            pend_2=(b0_0-b0_ant)/(error_ant-*2error_actual)
 
-            sum_1=data_temp['(y_result - y)^2'].sum()
-            sum_2=data_temp['x(y_result - y)'].sum()
-            sum_3=data_temp['(y_result - y)'].sum()
+            b_1_next=b1_1+error_actual*pend_1
+            b_0_next=b0_0+error_actual*pend_2
 
-            div_1=1/n_1_2_2
 
-            error_temp=div_1*sum_1
 
-            b_1_next=b1_1-alpha_1*sum_2/n_1
-            b_0_next=b0_0-alpha_1*sum_3/n_1
-
-            return b_1_next, b_0_next, error_temp,b1_1, b0_0
+            return b_1_next, b_0_next, error_actual, b1_1, b0_0, error_ant, pend_1, pend_2
 
         cont_1=0
 
         cont_2=0
 
+        cont_3=0
+
+        list_epocs=[]
 
 
-        while epoch>cont_1:
+        def print_figure():
+
+            pass
+
+
+
+
+        while True:
 
             if cont_1==0:
 
-                b_1_next, b_0_next, error_temp, b1_1, b0_0=det_error(data_1,lista_graf_2,b1,b0,alpha)
+                b_1_next, b_0_next, error_actual, b1_1, b0_0, error_ant, pend_1, pend_2=det_error(data_1,lista_graf_2,b0,b1,0,0,alpha)
 
-                data_2=data_2.append({"b1":b1_1,"b0":b0_0,"error":error_temp,"epoch":cont_1},ignore_index=True)
+                data_2=data_2.append({"b1":b1_1,"b0":b0_0,"error":error_actual,"epoch":cont_1,"pend_1":pend_1,"pend_2":pend_2},ignore_index=True)
 
             else:
 
-                b_1_next, b_0_next, error_temp, b1_1, b0_0=det_error(data_1,lista_graf_2,b_1_next,b_0_next,alpha)
+                pent_ant_1=pend_1
+
+                pent_ant_2=pend_2
+
+                b_1_next, b_0_next, error_actual, b1_1, b0_0, error_ant, pend_1, pend_2=det_error(data_1,lista_graf_2,b_0_next,b_1_next,b0_0,b1_1,error_ant)
 
                 if cont_2==3:
 
-                    nuevo_registro = {"b1":b1_1,"b0":b0_0,"error":error_temp,"epoch":cont_1}
+                    nuevo_registro = {"b1":b1_1,"b0":b0_0,"error":error_actual,"epoch":cont_1,"pend_1":pend_1,"pend_2":pend_2}
  
                     #Añadiendo una fila al dataframe
 
@@ -345,15 +354,57 @@ class Datos_Proyecto:
 
                     cont_2=0
 
+                if cont_3==1000:
+
+                    cont_3=0
+
+                    nuevo_registro = {"b1":b1_1,"b0":b0_0,"error":error_actual,"epoch":cont_1,"pend_1":pend_1,"pend_2":pend_2}
+ 
+                    data_2 = data_2.append(nuevo_registro, ignore_index=True)
+
+                    print(data_2)
+
+                    input("PRESIONE ENTER PARA CONTINUAR")
+                    print()
+
+
+                if abs(pent_ant_1)*pend_1==abs(pend_1)*pent_ant_1 or abs(pent_ant_2)*pend_2==abs(pend_2)*pent_ant_2:
+
+                    nuevo_registro = {"b1":b1_1,"b0":b0_0,"error":error_actual,"epoch":cont_1,"pend_1":pend_1,"pend_2":pend_2}
+ 
+                    data_2 = data_2.append(nuevo_registro, ignore_index=True)
+
+                    list_epocs.append(cont_1)
+
+                    print(data_2)
+
+                    break
+
+                elif error_ant>error_actual:         
+
+                    nuevo_registro = {"b1":b1_1,"b0":b0_0,"error":error_actual,"epoch":cont_1,"pend_1":pend_1,"pend_2":pend_2}
+ 
+                    data_2 = data_2.append(nuevo_registro, ignore_index=True)
+
+                    list_epocs.append(cont_1)
+
+                    print(data_2)
+
+                    break
+
 
             cont_1+=1
 
             cont_2+=1
 
+            cont_3+=1
+
             
 
 
         print(data_2)
+
+        print(list_epocs)
                
 
 
@@ -480,7 +531,7 @@ b1=1
 b0=2
 alpha=30
 
-data_entrenamiento=datos_1.entrenamiento_80(lista_graf_2,epoch,b1,b0,alpha)
+data_entrenamiento=datos_1.entrenamiento_80(lista_graf_2,b1,b0,alpha)
 
 
 input()
