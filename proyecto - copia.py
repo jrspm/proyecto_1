@@ -268,7 +268,7 @@ class Datos_Proyecto:
                 
                 pass
 
-    def entrenamiento_80(self,lista_graf_2,error_ant,b1,b0,alpha):
+    def entrenamiento_80(self,lista_graf_2,b1,b0,error_ant):
 
         data_1=self.data_Reducido_trabajar[lista_graf_2].dropna()
 
@@ -302,13 +302,11 @@ class Datos_Proyecto:
 
             error_actual=abs(data_temp['(y_result - y)'].sum())
 
-            pend_1=(b1_1-b1_ant)/(error_ant-*2error_actual)
-            pend_2=(b0_0-b0_ant)/(error_ant-*2error_actual)
+            pend_1=(b1_1-b1_ant)/(error_ant-2*error_actual)
+            pend_2=(b0_0-b0_ant)/(error_ant-2*error_actual)
 
             b_1_next=b1_1+error_actual*pend_1
             b_0_next=b0_0+error_actual*pend_2
-
-
 
             return b_1_next, b_0_next, error_actual, b1_1, b0_0, error_ant, pend_1, pend_2
 
@@ -318,15 +316,12 @@ class Datos_Proyecto:
 
         cont_3=0
 
+        cont_4=0
+
         list_epocs=[]
 
-
-        def print_figure():
-
-            pass
-
-
-
+        list_bo=[]
+        list_b1=[]
 
         while True:
 
@@ -354,6 +349,13 @@ class Datos_Proyecto:
 
                     cont_2=0
 
+                if cont_4==10:
+
+                    list_bo.append(b0_0)
+                    list_b1.append(b1_1)
+
+
+
                 if cont_3==1000:
 
                     cont_3=0
@@ -367,30 +369,37 @@ class Datos_Proyecto:
                     input("PRESIONE ENTER PARA CONTINUAR")
                     print()
 
+                if cont_1>3:
 
-                if abs(pent_ant_1)*pend_1==abs(pend_1)*pent_ant_1 or abs(pent_ant_2)*pend_2==abs(pend_2)*pent_ant_2:
+                    if abs(pent_ant_1)*pend_1==abs(pend_1)*pent_ant_1 or abs(pent_ant_2)*pend_2==abs(pend_2)*pent_ant_2:
 
-                    nuevo_registro = {"b1":b1_1,"b0":b0_0,"error":error_actual,"epoch":cont_1,"pend_1":pend_1,"pend_2":pend_2}
- 
-                    data_2 = data_2.append(nuevo_registro, ignore_index=True)
+                        nuevo_registro = {"b1":b1_1,"b0":b0_0,"error":error_actual,"epoch":cont_1,"pend_1":pend_1,"pend_2":pend_2}
+     
+                        data_2 = data_2.append(nuevo_registro, ignore_index=True)
 
-                    list_epocs.append(cont_1)
+                        list_epocs.append(cont_1)
 
-                    print(data_2)
+                        print(data_2)
 
-                    break
+                        list_bo.append(b0_0)
+                        list_b1.append(b1_1)
 
-                elif error_ant>error_actual:         
+                        break
 
-                    nuevo_registro = {"b1":b1_1,"b0":b0_0,"error":error_actual,"epoch":cont_1,"pend_1":pend_1,"pend_2":pend_2}
- 
-                    data_2 = data_2.append(nuevo_registro, ignore_index=True)
+                    elif error_ant>error_actual:         
 
-                    list_epocs.append(cont_1)
+                        nuevo_registro = {"b1":b1_1,"b0":b0_0,"error":error_actual,"epoch":cont_1,"pend_1":pend_1,"pend_2":pend_2}
+     
+                        data_2 = data_2.append(nuevo_registro, ignore_index=True)
 
-                    print(data_2)
+                        list_epocs.append(cont_1)
 
-                    break
+                        print(data_2)
+
+                        list_bo.append(b0_0)
+                        list_b1.append(b1_1)
+
+                        break
 
 
             cont_1+=1
@@ -400,6 +409,24 @@ class Datos_Proyecto:
             cont_3+=1
 
             
+        fig = plt.figure(figsize = (9,6))
+        ax =  fig.add_axes([0.1,0.1,0.7,0.7])
+        ax.set_title('ENTRENAMIENTO DEL MODELO')
+        ax.set_xlabel(lista_graf_2[1])
+        ax.set_ylabel(lista_graf_2[0])
+
+        array_data_1=data_1.values.tolist()
+        array2=np.reshape(array_data_1,-1)
+        lista_x=array2[0:-1:2]
+        lista_y=array2[1::2]     
+
+        for contador, b1 in enumerate(list_b1, start=1):
+            
+            y = b1*lista_x+array(list_bo[contador]*len(list_bo))
+            plt.plot(lista_x, y, '-r', label='Y=b1x+b0')
+
+
+        plt.show()
 
 
         print(data_2)
