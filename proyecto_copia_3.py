@@ -268,7 +268,7 @@ class Datos_Proyecto:
                 
                 pass
 
-    def entrenamiento_80(self,lista_graf_2,b1,b0,error,epchs):
+    def entrenamiento_80(self,lista_graf_2,b1,b0,error,epchs,alpha):
 
         data_1=self.data_Reducido_trabajar[lista_graf_2].dropna()
 
@@ -280,7 +280,7 @@ class Datos_Proyecto:
 
         data_2=pd.DataFrame(columns=["b1","b0","error","epoch","pend_1","pend_2"])
 
-        def det_error(data_1,lista_graf_2,b0_0,b1_1,b0_ant,b1_ant,error_ant,error_ant_x):
+        def det_error(data_1,lista_graf_2,b0_0,b1_1,b0_ant,b1_ant,error_ant,error_ant_x,alpha_x_y):
 
             array_temp_x_1=np.array(data_1[[lista_graf_2[1],"ones"]].values.tolist())
 
@@ -310,8 +310,8 @@ class Datos_Proyecto:
             pend_1=(b1_ant-b1_1)/(error_ant-2*error_actual)
             pend_2=(b0_ant-b0_0)/(error_ant-2*error_actual)
 
-            b_1_next=b1_1+sum_3_x*pend_1
-            b_0_next=b0_0+sum_3*pend_2
+            b_1_next=b1_1-alpha_x_y*sum_3_x*pend_1
+            b_0_next=b0_0-alpha_x_y*sum_3*pend_2
 
             return b_1_next, b_0_next, error_actual, b1_1, b0_0, pend_1, pend_2,error_actual_x
 
@@ -345,7 +345,7 @@ class Datos_Proyecto:
                 # print(f"  error_ant_actual={alpha}")
 
                                                                                             #det_error(data_1,lista_graf_2,b0_0,b1_1,b0_ant,b1_ant,error_ant,error_ant_x)
-                b_1_next, b_0_next, error_actual, b1_1, b0_0, pend_1, pend_2,error_actual_x=det_error(data_1,lista_graf_2,b0,b1,0,0,alpha,alpha)
+                b_1_next, b_0_next, error_actual, b1_1, b0_0, pend_1, pend_2,error_actual_x=det_error(data_1,lista_graf_2,b0,b1,0,0,error,error,alpha)
 
                 data_2=data_2.append({"b1":b1_1,"b0":b0_0,"error":error_actual,"epoch":cont_1,"pend_1":pend_1,"pend_2":pend_2},ignore_index=True)
                 
@@ -388,7 +388,7 @@ class Datos_Proyecto:
                 # print(f"  error_ant_x={error_ant_x}")   
 
                                                                                             #det_error(data_1,lista_graf_2,b0_0,b1_1,b0_ant,b1_ant,error_ant,error_ant_x)
-                b_1_next, b_0_next, error_actual, b1_1, b0_0, pend_1, pend_2,error_actual_x=det_error(data_1,lista_graf_2,b_0_next,b_1_next,b0_0_ant,b1_1_ant,error_ant,error_ant_x)
+                b_1_next, b_0_next, error_actual, b1_1, b0_0, pend_1, pend_2,error_actual_x=det_error(data_1,lista_graf_2,b_0_next,b_1_next,b0_0_ant,b1_1_ant,error_ant,error_ant_x,alpha)
 
                 dic_epoca_bo_b1[cont_1]=[b0_0,b1_1]
 
@@ -466,7 +466,7 @@ class Datos_Proyecto:
                         vect_4=np.reshape(array_list_1,(-1,1))
                         vect_b0=np.dot(vect_4,vect_3)
                         y = vect_b1x+vect_b0
-                        ax.plot(lista_x, y, '-r', label='Y=b1x+b0')
+                        ax.plot(lista_x, y, '-r')
 
                         cont_5+=1
 
@@ -715,22 +715,35 @@ lista_graf_2=[["PRECIO","PRECIO"],
 ######################################################################################################
 print("PRIMER_ANALISIS")
 lista_graf_2=["PRECIO","CALIDAD_MATERIAL"]
-epchs=10
-b1=8000
+epchs=100
+b1=10000
 b0=-500
-alpha=500
+error_1=500
+alpha_1=0.2
 
-data_entrenamiento=datos_1.entrenamiento_80(lista_graf_2,b1,b0,alpha,epchs)
+data_entrenamiento=datos_1.entrenamiento_80(lista_graf_2,b1,b0,error_1,epchs,alpha_1)
 
 
 lista_graf_3=["PRECIO","AREA_PISO"]
 print("SEGUNDO_ANALISIS")
-epchs_1=10
+epchs_2=100
 b1_2=0.25
 b0_2=-1
-alpha_2=500
+error_2=500
+alpha_2=-1
 
-data_entrenamiento_2=datos_1.entrenamiento_80(lista_graf_3,b1_2,b0_2,alpha_2,epchs_1)
+data_entrenamiento_2=datos_1.entrenamiento_80(lista_graf_3,b1_2,b0_2,error_2,epchs_2,alpha_2)
+
+
+lista_graf_3=["PRECIO","TOTAL_HABITACIONES"]
+print("TERCER_ANALISIS")
+epchs_3=100
+b1_3=10000
+b0_3=-500
+error_3=5
+alpha_3=-0.45
+
+data_entrenamiento_3=datos_1.entrenamiento_80(lista_graf_3,b1_3,b0_3,error_3,epchs_3,alpha_3)
 
 
 input()
