@@ -307,7 +307,7 @@ class Datos_Proyecto:
             error_actual_x=sum_3_x
 
 
-            pend_1=(b1_ant+b1_1)/(error_ant-2*error_actual)
+            pend_1=(b1_ant-b1_1)/(error_ant-2*error_actual)
             pend_2=(b0_ant-b0_0)/(error_ant-2*error_actual)
 
             b_1_next=b1_1+sum_3_x*pend_1
@@ -411,8 +411,9 @@ class Datos_Proyecto:
                 # input()
                 # print("..................................................................")
 
+                finalizar=""
 
-                if cont_3==10:
+                if cont_3==5000:
 
                     cont_3=0
 
@@ -429,15 +430,15 @@ class Datos_Proyecto:
 
                     data_menor_media = data_2.loc[data_2['error'] < val_med]
 
+                    print(data_menor_media)
+
                     list_epochs_menor_media=set(data_menor_media['epoch'].values.tolist())
 
                     keys_dic=set(dic_epoca_bo_b1.keys())
 
                     keys_dic=list_epochs_menor_media.intersection(keys_dic)
 
-                    input()
-
-
+                    
                     fig = plt.figure(figsize = (9,6))
                     ax =  fig.add_axes([0.1,0.1,0.7,0.7])
                     ax.set_title('ENTRENAMIENTO DEL MODELO')
@@ -465,11 +466,19 @@ class Datos_Proyecto:
 
                         cont_5+=1
 
-                        if cont_5==3:
+                        if cont_5==2:
 
                             break
 
                     plt.show()
+
+                    finalizar=input("Escriba Y si desea terminar = ")
+
+
+
+                if finalizar=="Y":
+
+                    break
 
 
                 if cont_1>3:
@@ -702,7 +711,7 @@ lista_graf_2=[["PRECIO","PRECIO"],
 ######################################################################################################
 
 lista_graf_2=["PRECIO","CALIDAD_MATERIAL"]
-b1=500
+b1=5000
 b0=-1000
 alpha=500
 
