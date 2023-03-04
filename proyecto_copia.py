@@ -268,7 +268,7 @@ class Datos_Proyecto:
                 
                 pass
 
-    def entrenamiento_80(self,lista_graf_2,b1,b0,error_ant):
+    def entrenamiento_80(self,lista_graf_2,b1,b0,error):
 
         data_1=self.data_Reducido_trabajar[lista_graf_2].dropna()
 
@@ -280,7 +280,7 @@ class Datos_Proyecto:
 
         data_2=pd.DataFrame(columns=["b1","b0","error","epoch","pend_1","pend_2"])
 
-        def det_error(data_1,lista_graf_2,b0_0,b1_1,b0_ant,b1_ant,error_ant):
+        def det_error(data_1,lista_graf_2,b0_0,b1_1,b0_ant,b1_ant,error_ant,error_ant_x):
 
             array_temp_x_1=np.array(data_1[[lista_graf_2[1],"ones"]].values.tolist())
 
@@ -300,15 +300,20 @@ class Datos_Proyecto:
 
             n_1=float(data_temp.shape[0])
 
-            error_actual=abs(data_temp['(y_result - y)'].sum())
+            sum_3=data_temp['(y_result - y)'].sum()
+            sum_3_x=data_temp['x(y_result - y)'].sum()
 
-            pend_1=(b1_1-b1_ant)/(error_ant-2*error_actual)
-            pend_2=(b0_0-b0_ant)/(error_ant-2*error_actual)
+            error_actual=sum_3
+            error_actual_x=sum_3_x
 
-            b_1_next=b1_1+error_actual*pend_1
-            b_0_next=b0_0+error_actual*pend_2
 
-            return b_1_next, b_0_next, error_actual, b1_1, b0_0, error_ant, pend_1, pend_2
+            pend_1=(b1_ant-b1_1)/(error_ant-2*error_actual)
+            pend_2=(b0_ant-b0_0)/(error_ant-2*error_actual)
+
+            b_1_next=b1_1+sum_3_x*pend_1
+            b_0_next=b0_0+sum_3*pend_2
+
+            return b_1_next, b_0_next, error_actual, b1_1, b0_0, pend_1, pend_2,error_actual_x
 
         cont_1=0
 
@@ -323,21 +328,30 @@ class Datos_Proyecto:
         list_bo=[]
         list_b1=[]
 
+        var_1=False
+
+        cont_true=0
+
         while True:
 
             if cont_1==0:
 
-                b_1_next, b_0_next, error_actual, b1_1, b0_0, error_ant, pend_1, pend_2=det_error(data_1,lista_graf_2,b0,b1,0,0,alpha)
+                b_1_next, b_0_next, error_actual, b1_1, b0_0, pend_1, pend_2,error_actual_x=det_error(data_1,lista_graf_2,b0,b1,0,0,alpha,alpha)
 
                 data_2=data_2.append({"b1":b1_1,"b0":b0_0,"error":error_actual,"epoch":cont_1,"pend_1":pend_1,"pend_2":pend_2},ignore_index=True)
+                list_bo.append(b0_0)
+                list_b1.append(b1_1)
 
             else:
 
                 pent_ant_1=pend_1
-
                 pent_ant_2=pend_2
+                error_ant_x=error_actual_x
+                error_ant=error_actual
+                b1_1_ant=b1_1
+                b0_0_ant=b0_0
 
-                b_1_next, b_0_next, error_actual, b1_1, b0_0, error_ant, pend_1, pend_2=det_error(data_1,lista_graf_2,b_0_next,b_1_next,b0_0,b1_1,error_ant)
+                b_1_next, b_0_next, error_actual, b1_1, b0_0, pend_1, pend_2,error_actual_x=det_error(data_1,lista_graf_2,b_0_next,b_1_next,b0_0_ant,b1_1_ant,error_ant,error_ant_x)
 
                 if cont_2==3:
 
@@ -349,14 +363,7 @@ class Datos_Proyecto:
 
                     cont_2=0
 
-                if cont_4==10:
-
-                    list_bo.append(b0_0)
-                    list_b1.append(b1_1)
-
-
-
-                if cont_3==1000:
+                if cont_3==100:
 
                     cont_3=0
 
@@ -366,10 +373,14 @@ class Datos_Proyecto:
 
                     print(data_2)
 
+                    list_bo.append(b0_0)
+                    list_b1.append(b1_1)
+
                     input("PRESIONE ENTER PARA CONTINUAR")
                     print()
 
-                if cont_1>3:
+
+                if cont_1>1000:
 
                     if abs(pent_ant_1)*pend_1==abs(pend_1)*pent_ant_1 or abs(pent_ant_2)*pend_2==abs(pend_2)*pent_ant_2:
 
@@ -381,12 +392,10 @@ class Datos_Proyecto:
 
                         print(data_2)
 
-                        list_bo.append(b0_0)
-                        list_b1.append(b1_1)
-
                         break
 
-                    elif error_ant>error_actual:         
+
+                    if error_ant>error_actual or abs(error_ant)*error_actual==abs(error_actual)*error_ant:         
 
                         nuevo_registro = {"b1":b1_1,"b0":b0_0,"error":error_actual,"epoch":cont_1,"pend_1":pend_1,"pend_2":pend_2}
      
@@ -396,8 +405,17 @@ class Datos_Proyecto:
 
                         print(data_2)
 
-                        list_bo.append(b0_0)
-                        list_b1.append(b1_1)
+                        break
+
+                    if error_actual<=0 or float(pend_1)==float("NaN"):
+
+                        nuevo_registro = {"b1":b1_1,"b0":b0_0,"error":error_actual,"epoch":cont_1,"pend_1":pend_1,"pend_2":pend_2}
+     
+                        data_2 = data_2.append(nuevo_registro, ignore_index=True)
+
+                        list_epocs.append(cont_1)
+
+                        print(data_2)
 
                         break
 
@@ -414,24 +432,34 @@ class Datos_Proyecto:
         ax.set_title('ENTRENAMIENTO DEL MODELO')
         ax.set_xlabel(lista_graf_2[1])
         ax.set_ylabel(lista_graf_2[0])
+        lista_y=np.array(data_1[lista_graf_2[0]].values.tolist())
+        lista_x=np.array(data_1[lista_graf_2[1]].values.tolist())
+        array_list_1=[1]*(len(lista_x))
+        ax.scatter(lista_x,lista_y)
 
-        array_data_1=data_1.values.tolist()
-        array2=np.reshape(array_data_1,-1)
-        lista_x=array2[0:-1:2]
-        lista_y=array2[1::2]     
+        print(lista_y)
 
-        for contador, b1 in enumerate(list_b1, start=1):
-            
-            y = b1*lista_x+array(list_bo[contador]*len(list_bo))
-            plt.plot(lista_x, y, '-r', label='Y=b1x+b0')
+        print(lista_x)
 
+        for contador, i in enumerate(list_b1, start=0):
+
+            vect_1=np.array([i])
+            vect_2=np.reshape(lista_x,(-1,1))
+            vect_b1x=np.dot(vect_2,vect_1)
+            vect_3=np.array([list_bo[contador]])
+            vect_4=np.reshape(array_list_1,(-1,1))
+            vect_b0=np.dot(vect_4,vect_3)
+            y = vect_b1x+vect_b0
+            ax.plot(lista_x, y, '-r', label='Y=b1x+b0')
 
         plt.show()
 
 
         print(data_2)
 
-        print(list_epocs)
+        print(f"Para las graficas {lista_graf_2}")
+
+        print(f"Con un error inicial de alpha={alpha} y con valores de b1={b1} y b0={b0} se necesitaron {list_epocs} epocas")
                
 
 
@@ -553,10 +581,9 @@ lista_graf_2=[["PRECIO","PRECIO"],
 ######################################################################################################
 
 lista_graf_2=["PRECIO","CALIDAD_MATERIAL"]
-epoch=100
-b1=1
-b0=2
-alpha=30
+b1=5000
+b0=-500
+alpha=500
 
 data_entrenamiento=datos_1.entrenamiento_80(lista_graf_2,b1,b0,alpha)
 
