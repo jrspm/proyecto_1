@@ -424,11 +424,13 @@ class Datos_Proyecto:
 
                     dic_epoca_bo_b1[cont_1]=[b0_0,b1_1]
 
-                    data_2 = data_2.sort_values('error',ascending=True)
+                    data_3 = data_2.sort_values('error',ascending=True)
 
-                    val_med=data_2["error"].mean()
+                    val_med=data_3["error"].mean()
 
-                    data_menor_media = data_2.loc[data_2['error'] < val_med]
+                    data_menor_media = data_3.loc[data_3['error'] < val_med]
+
+                    print(data_2)
 
                     print(data_menor_media)
 
@@ -589,11 +591,10 @@ class Datos_Proyecto:
         # plt.show()
 
 
-        print(data_2)
+        print(f"Con un error inicial de alpha={alpha} y con valores de b1={b1} y b0={b0} se necesitaron {len(list_epocs)} epocas")
 
-        print(f"Para las graficas {lista_graf_2}")
+        input("Enter para continuar")
 
-        print(f"Con un error inicial de alpha={alpha} y con valores de b1={b1} y b0={b0} se necesitaron {list_epocs} epocas")
                
 
 
