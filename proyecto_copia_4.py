@@ -438,7 +438,7 @@ class Datos_Proyecto:
 
                     val_med=data_3["error"].mean()
 
-                    data_menor_media = data_3.loc[data_3['error'] < val_med].drop_duplicates(subset = ['error'])
+                    data_menor_media = data_3.loc[data_3['error'] < val_med*2].drop_duplicates(subset = ['error'])
 
                     print(data_2)
 
@@ -458,7 +458,7 @@ class Datos_Proyecto:
 
                     keys_dic.add(0)
 
-                    #keys_dic.add(3)
+                    keys_dic.add(3)
                     
                     fig, ax = plt.subplots()
                     ax.set_title(f'ENTRENAMIENTO DEL MODELO {lista_graf_2[0]} vs {lista_graf_2[1]}')
@@ -499,51 +499,50 @@ class Datos_Proyecto:
 
                         if cont_5==6:
 
-                            print("-------------------------------------------------------------")
-
                             break
+
+                    print("-------------------------------------------------------------")
 
                     plt.show()
 
 
-                    # fig = plt.figure(figsize = (9,6))
-                    # ax =  fig.add_axes([0.1,0.1,0.7,0.7])
-                    # ax.set_title('ENTRENAMIENTO DEL MODELO')
-                    # ax.set_xlabel(lista_graf_2[1])
-                    # ax.set_ylabel(lista_graf_2[0])
-                    # lista_y=np.array(data_1[lista_graf_2[0]].values.tolist())
-                    # lista_x=np.array(data_1[lista_graf_2[1]].values.tolist())
-                    # array_list_1=[1]*(len(lista_x))
-                    # ax.scatter(lista_x,lista_y)
-
-                    # cont_5=0
-
-                    # for i in keys_dic:
-
-                    #     i=int(i)
-
-                    #     print(f"EPOCA = {i}")
-                    #     print(f"ERROR = {dic_epoca_bo_b1[i][2]}")
-                    #     vect_1=np.array([dic_epoca_bo_b1[i][1]])
-                    #     print(f"VALOR DE B1 ={dic_epoca_bo_b1[i][1]}")
-                    #     vect_2=np.reshape(lista_x,(-1,1))
-                    #     vect_b1x=np.dot(vect_2,vect_1)
-                    #     vect_3=np.array([dic_epoca_bo_b1[i][0]])
-                    #     print(f"VALOR DE B0 ={dic_epoca_bo_b1[i][0]}")
-                    #     vect_4=np.reshape(array_list_1,(-1,1))
-                    #     vect_b0=np.dot(vect_4,vect_3)
-                    #     y = vect_b1x+vect_b0
-                    #     ax.plot(lista_x, y, '-r')
-
-                    #     cont_5+=1
-
-                    #     if cont_5==3:
-
-                    #         break
-
-                    # plt.show()
 
 
+                    #data_2=pd.DataFrame(columns=["b1","b0","error","epoch","pend_1","pend_2"])
+
+                    def graficas(data_graf,lista_graf):
+
+                        data_2_reducido=data_graf[lista_graf].dropna()
+
+
+
+                        key=f"{lista_graf[0]} vs {lista_graf[1]}"
+
+                        array_data_1=data_2_reducido.values.tolist()
+
+                        array2=np.reshape(array_data_1,-1)
+
+                        lista_y=array2[0:-1:2]
+
+                        lista_x=array2[1::2]
+
+                        last_value_x=lista_x[-1]
+                        last_value_y=lista_y[-1] 
+
+                        fig, ax = plt.subplots()         
+                        ax.plot(lista_x,lista_y,label = f"{lista_graf[1]} = {last_value_x} | {lista_graf[0]} = {last_value_y} ")
+                        plt.title(key, fontsize = 12)
+                        plt.xticks(fontsize=9, rotation=45)
+                        plt.xlabel(lista_graf[1],fontsize=12)
+                        plt.ylabel(lista_graf[0],fontsize=12)
+                        plt.tight_layout()
+                        ax.legend()
+                        plt.show()
+
+                    
+                    graficas(data_2,["b1","epoch"])
+                    graficas(data_2,["b0","epoch"])
+                    graficas(data_2,["error","epoch"])
 
 
 
@@ -803,24 +802,36 @@ alpha_1=0.2
 
 lista_graf_3=["PRECIO","AREA_PISO"]
 print("SEGUNDO_ANALISIS")
-epchs_2=100
+epchs_2=3500
 b1_2=-0.61
 b0_2=1000
 error_2=0
-alpha_2=0.2
+alpha_2=0.00001
 
 #data_entrenamiento_2=datos_1.entrenamiento_80(lista_graf_3,b1_2,b0_2,error_2,epchs_2,alpha_2)
 
 
 lista_graf_4=["PRECIO","TOTAL_HABITACIONES"]
 print("TERCER_ANALISIS")
-epchs_3=100
+epchs_3=6000
 b1_3=10
-b0_3=-500
+b0_3=500
 error_3=5
-alpha_3=-0.45
+alpha_3=0.2
 
-data_entrenamiento_3=datos_1.entrenamiento_80(lista_graf_4,b1_3,b0_3,error_3,epchs_3,alpha_3)
+#data_entrenamiento_3=datos_1.entrenamiento_80(lista_graf_4,b1_3,b0_3,error_3,epchs_3,alpha_3)
+
+
+lista_graf_5=["PRECIO","AÑO_CONSTRUCCION"]
+print("CUARTO_ANALISIS")
+epchs_4=6000
+b1_4=10
+b0_4=500
+error_4=5
+alpha_4=0.2
+
+data_entrenamiento_4=datos_1.entrenamiento_80(lista_graf_5,b1_4,b0_4,error_4,epchs_4,alpha_4)
+
 
 
 input()
