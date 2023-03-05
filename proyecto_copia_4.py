@@ -18,7 +18,7 @@ import seaborn as sns
 
 import matplotlib.pyplot as plt
 
-from sklearn.linear_model import LinearRegression
+#from sklearn.linear_model import LinearRegression
 
 #------------------------------------- fin paquetes necesarios -------------------------------------
 
@@ -302,15 +302,16 @@ class Datos_Proyecto:
 
             n_1=float(data_temp.shape[0])
 
-            sum_3=abs(data_temp['(y_result - y)'].sum())
-            sum_3_x=abs(data_temp['x(y_result - y)'].sum())
+            sum_3=(-1)*(data_temp['(y_result - y)'].sum())
+            sum_3_x=(-1)*(data_temp['x(y_result - y)'].sum())
+
 
             error_actual=sum_3
             error_actual_x=sum_3_x
 
 
-            pend_1=(b1_ant-b1_1)/(error_ant-2*error_actual)
-            pend_2=(b0_ant-b0_0)/(error_ant-2*error_actual)
+            pend_1=(b1_ant-b1_1)/(error_ant-error_actual)
+            pend_2=(b0_ant-b0_0)/(error_ant-error_actual)
 
             b_1_next=b1_1-alpha_x_y*sum_3_x*pend_1
             b_0_next=b0_0-alpha_x_y*sum_3*pend_2
@@ -351,11 +352,13 @@ class Datos_Proyecto:
                                                                                             #det_error(data_1,lista_graf_2,b0_0,b1_1,b0_ant,b1_ant,error_ant,error_ant_x)
                 b_1_next, b_0_next, error_actual, b1_1, b0_0, pend_1, pend_2,error_actual_x=det_error(data_1,lista_graf_2,b0,b1,0,0,error,error,alpha)
 
-                data_2.loc[cont_idex]=[b1_1, b0_0,error_actual,cont_1,pend_1,pend_2]
+                error_actual_abs=abs(error_actual)
+
+                data_2.loc[cont_idex]=[b1_1, b0_0,error_actual_abs,cont_1,pend_1,pend_2]
 
                 cont_idex+=1
                 
-                dic_epoca_bo_b1[cont_1]=[b0_0,b1_1,error_actual]
+                dic_epoca_bo_b1[cont_1]=[b0_0,b1_1,error_actual_abs]
 
                 # print("resultados")
 
@@ -396,11 +399,13 @@ class Datos_Proyecto:
                                                                                             #det_error(data_1,lista_graf_2,b0_0,b1_1,b0_ant,b1_ant,error_ant,error_ant_x)
                 b_1_next, b_0_next, error_actual, b1_1, b0_0, pend_1, pend_2,error_actual_x=det_error(data_1,lista_graf_2,b_0_next,b_1_next,b0_0_ant,b1_1_ant,error_ant,error_ant_x,alpha)
 
-                dic_epoca_bo_b1[cont_1]=[b0_0,b1_1,error_actual]
+                error_actual_abs=abs(error_actual)
 
-                data_2.loc[cont_idex]=[b1_1, b0_0,error_actual,cont_1,pend_1,pend_2] #Añadiendo una fila al dataframe
+                data_2.loc[cont_idex]=[b1_1, b0_0,error_actual_abs,cont_1,pend_1,pend_2]
 
                 cont_idex+=1
+                
+                dic_epoca_bo_b1[cont_1]=[b0_0,b1_1,error_actual_abs]
 
                 # print("resultados")
 
@@ -421,11 +426,13 @@ class Datos_Proyecto:
 
                     cont_3=0
  
-                    data_2.loc[cont_idex]=[b1_1, b0_0,error_actual,cont_1,pend_1,pend_2] #Añadiendo una fila al dataframe
+                    error_actual_abs=abs(error_actual)
+
+                    data_2.loc[cont_idex]=[b1_1, b0_0,error_actual_abs,cont_1,pend_1,pend_2]
 
                     cont_idex+=1
-
-                    dic_epoca_bo_b1[cont_1]=[b0_0,b1_1,error_actual]
+                    
+                    dic_epoca_bo_b1[cont_1]=[b0_0,b1_1,error_actual_abs]
 
                     data_3 = data_2.sort_values('error',ascending=True)
 
@@ -433,15 +440,15 @@ class Datos_Proyecto:
 
                     data_menor_media = data_3.loc[data_3['error'] < val_med].drop_duplicates(subset = ['error'])
 
-                    #print(data_2)
+                    print(data_2)
 
                     #print(data_menor_media)
 
                     data_menor_media_snan=data_menor_media.dropna()
 
-                    print(data_menor_media_snan)
+                    #print(data_menor_media_snan)
 
-                    selected_3_rows=data_menor_media_snan[['epoch']].head(n=3)
+                    selected_3_rows=data_menor_media_snan[['epoch']].head(n=2)
 
                     list_epochs_menor_media=set(selected_3_rows['epoch'].values.tolist())
 
@@ -449,9 +456,11 @@ class Datos_Proyecto:
 
                     keys_dic=list_epochs_menor_media.intersection(keys_dic)
 
+                    keys_dic.add(0)
+
+                    #keys_dic.add(3)
                     
-                    fig = plt.figure(figsize = (9,6))
-                    ax =  fig.add_axes([0.1,0.1,0.7,0.7])
+                    fig, ax = plt.subplots()
                     ax.set_title(f'ENTRENAMIENTO DEL MODELO {lista_graf_2[0]} vs {lista_graf_2[1]}')
                     ax.set_xlabel(lista_graf_2[1])
                     ax.set_ylabel(lista_graf_2[0])
@@ -460,11 +469,17 @@ class Datos_Proyecto:
                     array_list_1=[1]*(len(lista_x))
                     ax.scatter(lista_x,lista_y)
 
+                    list_keys_dic=list(keys_dic)
+
+                    list_keys_dic.sort(reverse=True)
+
                     cont_5=0
 
-                    for i in keys_dic:
+                    for i in set(list_keys_dic):
 
                         i=int(i)
+
+                        print("-------------------------------------------------------------")
 
                         print(f"EPOCA = {i}")
                         print(f"ERROR = {dic_epoca_bo_b1[i][2]}")
@@ -477,11 +492,14 @@ class Datos_Proyecto:
                         vect_4=np.reshape(array_list_1,(-1,1))
                         vect_b0=np.dot(vect_4,vect_3)
                         y = vect_b1x+vect_b0
-                        ax.plot(lista_x, y, '-r')
+                        ax.plot(lista_x, y, label = f"EP = {i} | ERROR ={round(dic_epoca_bo_b1[i][2],1)}")
+                        ax.legend()
 
                         cont_5+=1
 
-                        if cont_5==3:
+                        if cont_5==6:
+
+                            print("-------------------------------------------------------------")
 
                             break
 
@@ -780,29 +798,29 @@ b0=-500
 error_1=500
 alpha_1=0.2
 
-data_entrenamiento=datos_1.entrenamiento_80(lista_graf_2,b1,b0,error_1,epchs,alpha_1)
+#data_entrenamiento=datos_1.entrenamiento_80(lista_graf_2,b1,b0,error_1,epchs,alpha_1)
 
 
 lista_graf_3=["PRECIO","AREA_PISO"]
 print("SEGUNDO_ANALISIS")
 epchs_2=100
-b1_2=0.25
-b0_2=-1
-error_2=500
-alpha_2=-1
+b1_2=-0.61
+b0_2=1000
+error_2=0
+alpha_2=0.2
 
-data_entrenamiento_2=datos_1.entrenamiento_80(lista_graf_3,b1_2,b0_2,error_2,epchs_2,alpha_2)
+#data_entrenamiento_2=datos_1.entrenamiento_80(lista_graf_3,b1_2,b0_2,error_2,epchs_2,alpha_2)
 
 
-lista_graf_3=["PRECIO","TOTAL_HABITACIONES"]
+lista_graf_4=["PRECIO","TOTAL_HABITACIONES"]
 print("TERCER_ANALISIS")
 epchs_3=100
-b1_3=10000
+b1_3=10
 b0_3=-500
 error_3=5
 alpha_3=-0.45
 
-data_entrenamiento_3=datos_1.entrenamiento_80(lista_graf_3,b1_3,b0_3,error_3,epchs_3,alpha_3)
+data_entrenamiento_3=datos_1.entrenamiento_80(lista_graf_4,b1_3,b0_3,error_3,epchs_3,alpha_3)
 
 
 input()
