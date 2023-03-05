@@ -18,7 +18,7 @@ import seaborn as sns
 
 import matplotlib.pyplot as plt
 
-from sklearn.linear_model import LinearRegression
+#from sklearn.linear_model import LinearRegression
 
 #------------------------------------- fin paquetes necesarios -------------------------------------
 
@@ -274,8 +274,6 @@ class Datos_Proyecto:
 
         data_1=self.data_Reducido_trabajar[lista_graf_2].dropna()
 
-        data_1_comparar=self.data_Reducido_comparar[lista_graf_2].dropna()
-
         num=data_1.shape[0]
 
         array_list_1=[1]*(num)
@@ -337,14 +335,6 @@ class Datos_Proyecto:
         cont_4=0
 
         cont_idex=0
-
-        last_b1=0
-
-        last_b0=0 
-
-        epchs=0
-
-        last_error=0
 
         while True:
 
@@ -515,6 +505,9 @@ class Datos_Proyecto:
 
                     plt.show()
 
+
+
+
                     #data_2=pd.DataFrame(columns=["b1","b0","error","epoch","pend_1","pend_2"])
 
                     def graficas(data_graf,lista_graf):
@@ -546,16 +539,11 @@ class Datos_Proyecto:
                         ax.legend()
                         plt.show()
 
-                        #return last_value_x, last_value_y
-
                     
-                    #last_b1, epchs =graficas(data_2,["b1","epoch"])
-                    #last_b0, epchs =graficas(data_2,["b0","epoch"])
-                    #last_error, epchs =graficas(data_2,["error","epoch"])
-
                     graficas(data_2,["b1","epoch"])
                     graficas(data_2,["b0","epoch"])
                     graficas(data_2,["error","epoch"])
+
 
 
                     finalizar=input("Escriba Y si desea terminar o presione ENTER para repertir la cantidad de epocas = ")
@@ -566,56 +554,123 @@ class Datos_Proyecto:
 
                     break
 
+
+                #if cont_1>3:
+
+                    # if abs(pent_ant_1)*pend_1==abs(pend_1)*pent_ant_1 or abs(pent_ant_2)*pend_2==abs(pend_2)*pent_ant_2:
+
+                    #     nuevo_registro = {"b1":b1_1,"b0":b0_0,"error":error_actual,"epoch":cont_1,"pend_1":pend_1,"pend_2":pend_2}
+     
+                    #     data_2 = data_2.append(nuevo_registro, ignore_index=True)
+
+                    #     list_epocs.append(cont_1)
+
+                    #     print(data_2)
+
+                    #     list_bo.append(b0_0)
+                    #     list_b1.append(b1_1)
+
+
+                    #     break
+
+
+                    # if error_ant>error_actual or abs(error_ant)*error_actual==abs(error_actual)*error_ant:         
+
+                    #     data_2.loc[cont_idex]=[b1_1, b0_0,error_actual,cont_1,pend_1,pend_2] #Añadiendo una fila al dataframe
+
+                    #     cont_idex+=1
+
+                    #     list_epocs.append(cont_1)
+
+                    #     #print(data_2)
+
+                    #     dic_epoca_bo_b1[cont_1]=[b0_0,b1_1]
+
+                        # fig = plt.figure(figsize = (9,6))
+                        # ax =  fig.add_axes([0.1,0.1,0.7,0.7])
+                        # ax.set_title('ENTRENAMIENTO DEL MODELO')
+                        # ax.set_xlabel(lista_graf_2[1])
+                        # ax.set_ylabel(lista_graf_2[0])
+                        # lista_y=np.array(data_1[lista_graf_2[0]].values.tolist())
+                        # lista_x=np.array(data_1[lista_graf_2[1]].values.tolist())
+                        # array_list_1=[1]*(len(lista_x))
+                        # ax.scatter(lista_x,lista_y)
+
+                        # vect_1=np.array([b1_1])
+                        # vect_2=np.reshape(lista_x,(-1,1))
+                        # vect_b1x=np.dot(vect_2,vect_1)
+                        # vect_3=np.array([b0_0])
+                        # vect_4=np.reshape(array_list_1,(-1,1))
+                        # vect_b0=np.dot(vect_4,vect_3)
+                        # y = vect_b1x+vect_b0
+                        # ax.plot(lista_x, y, '-r', label='Y=b1x+b0')
+
+                        # plt.show()
+
+                        #break
+
+                    # if error_actual<=0 or float(pend_1)==float("NaN"):
+
+                    #     nuevo_registro = {"b1":b1_1,"b0":b0_0,"error":error_actual,"epoch":cont_1,"pend_1":pend_1,"pend_2":pend_2}
+     
+                    #     data_2 = data_2.append(nuevo_registro, ignore_index=True)
+
+                    #     list_epocs.append(cont_1)
+
+                    #     print(data_2)
+                    #     list_bo.append(b0_0)
+                    #     list_b1.append(b1_1)
+
+                    #     break
+
+
             cont_1+=1
 
             cont_2+=1
 
             cont_3+=1
 
+            
+        # fig = plt.figure(figsize = (9,6))
+        # ax =  fig.add_axes([0.1,0.1,0.7,0.7])
+        # ax.set_title('ENTRENAMIENTO DEL MODELO')
+        # ax.set_xlabel(lista_graf_2[1])
+        # ax.set_ylabel(lista_graf_2[0])
+        # lista_y=np.array(data_1[lista_graf_2[0]].values.tolist())
+        # lista_x=np.array(data_1[lista_graf_2[1]].values.tolist())
+        # array_list_1=[1]*(len(lista_x))
+        # ax.scatter(lista_x,lista_y)
 
-        print(f"Con un valor de alpha = {alpha} y con valores de b1={b1} y b0={b0}.")
+        # print(lista_y)
+
+        # print(lista_x)
+
+        # for contador, i in enumerate(list_b1, start=0):
+
+        #     vect_1=np.array([i])
+        #     vect_2=np.reshape(lista_x,(-1,1))
+        #     vect_b1x=np.dot(vect_2,vect_1)
+        #     vect_3=np.array([list_bo[contador]])
+        #     vect_4=np.reshape(array_list_1,(-1,1))
+        #     vect_b0=np.dot(vect_4,vect_3)
+        #     y = vect_b1x+vect_b0
+        #     ax.plot(lista_x, y, '-r', label='Y=b1x+b0')
+
+        # plt.show()
+
+
+        print(f"Con un error inicial de alpha={alpha} y con valores de b1={b1} y b0={b0} se necesitaron {len(list_epocs)} epocas")
+
+
+
+
+
+
+
 
         input("Enter para continuar")
 
-
-        #regressor = LinearRegression()
-
-        #array_temp_x_1=np.array(data_1[lista_graf_2[1]].values.tolist())
-
-        #array_temp_y=np.array(data_1[lista_graf_2[0]].values.tolist())
-
-        #array_temp_x_1=array_temp_x_1.reshape(1,-1)
-        #array_temp_y=array_temp_y.reshape(1,-1)
-
-
-        #regressor.fit(array_temp_x_1, array_temp_y)
-
-        #train_b0=regressor.intercept_
-
-        #train_b1=regressor.coef_
-
-        train_b0=0
-
-        train_b1=1
-
-
-        dic_result_train={"last_b1":last_b1, "last_b0":last_b0, "last_error":last_error, "last_epchs":epchs, "train_b0":train_b0, "train_b1":train_b1}
-
-        return dic_result_train
-
                
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 #-------------------------------------  fin data frame cargar datos -------------------------------------
@@ -736,16 +791,13 @@ lista_graf_2=[["PRECIO","PRECIO"],
 ######################################################################################################
 print("PRIMER_ANALISIS")
 lista_graf_2=["PRECIO","CALIDAD_MATERIAL"]
-epchs=100
+epchs=6000
 b1=10000
 b0=-500
 error_1=500
-alpha_1=0.2
+alpha_1=0.02
 
-
-dic_result_train_1=datos_1.entrenamiento_80(lista_graf_2,b1,b0,error_1,epchs,alpha_1)
-
-print(dic_result_train_1)
+data_entrenamiento=datos_1.entrenamiento_80(lista_graf_2,b1,b0,error_1,epchs,alpha_1)
 
 
 lista_graf_3=["PRECIO","AREA_PISO"]
@@ -756,9 +808,7 @@ b0_2=1000
 error_2=0
 alpha_2=0.00001
 
-dic_result_train_2=datos_1.entrenamiento_80(lista_graf_3,b1_2,b0_2,error_2,epchs_2,alpha_2)
-
-print(dic_result_train_2)
+data_entrenamiento_2=datos_1.entrenamiento_80(lista_graf_3,b1_2,b0_2,error_2,epchs_2,alpha_2)
 
 
 lista_graf_4=["PRECIO","TOTAL_HABITACIONES"]
@@ -769,8 +819,8 @@ b0_3=500
 error_3=5
 alpha_3=0.2
 
-dic_result_train_3=datos_1.entrenamiento_80(lista_graf_4,b1_3,b0_3,error_3,epchs_3,alpha_3)
-print(dic_result_train_3)
+data_entrenamiento_3=datos_1.entrenamiento_80(lista_graf_4,b1_3,b0_3,error_3,epchs_3,alpha_3)
+
 
 lista_graf_5=["PRECIO","AÑO_CONSTRUCCION"]
 print("CUARTO_ANALISIS")
@@ -780,9 +830,7 @@ b0_4=-500
 error_4=5
 alpha_4=0.001
 
-dic_result_train_4=datos_1.entrenamiento_80(lista_graf_5,b1_4,b0_4,error_4,epchs_4,alpha_4)
-print(dic_result_train_4)
-
+data_entrenamiento_4=datos_1.entrenamiento_80(lista_graf_5,b1_4,b0_4,error_4,epchs_4,alpha_4)
 
 lista_graf_6=["PRECIO","FRENTE"]
 print("QUINTO_ANALISIS")
@@ -792,12 +840,9 @@ b0_5=-500
 error_5=5
 alpha_5=0.0001
 
-dic_result_train_5=datos_1.entrenamiento_80(lista_graf_6,b1_5,b0_5,error_5,epchs_5,alpha_5)
-print(dic_result_train_5)
+data_entrenamiento_5=datos_1.entrenamiento_80(lista_graf_6,b1_5,b0_5,error_5,epchs_5,alpha_5)
 
 input()
 
 
 #matrix_1Reducida=dataframe_elemento.drop(lista_surtida, axis=1)
-
-
