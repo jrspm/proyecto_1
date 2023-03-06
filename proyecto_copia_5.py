@@ -277,12 +277,16 @@ class Datos_Proyecto:
         data_1_comparar=self.data_Reducido_comparar[lista_graf_2].dropna()
 
         num=data_1.shape[0]
+        num_2=data_1_comparar.shape[0]
 
         array_list_1=[1]*(num)
+        array_list_1_2=[1]*(num_2)
 
         data_1.insert(2, "ones", array_list_1)
 
-        data_2=pd.DataFrame(columns=["b1","b0","error","epoch","pend_1","pend_2"])
+        data_1_comparar.insert(2, "ones", array_list_1_2)
+
+        data_2=pd.DataFrame(columns=["b1","b0","diff(y-y_80)","epoch","pend_1","pend_2"])
 
         def det_error(data_1,lista_graf_2,b0_0,b1_1,b0_ant,b1_ant,error_ant,error_ant_x,alpha_x_y):
 
@@ -321,11 +325,11 @@ class Datos_Proyecto:
             return b_1_next, b_0_next, error_actual, b1_1, b0_0, pend_1, pend_2,error_actual_x
 
 
-        def det_error_2(data_1,lista_graf_2,b0_train,b1_train):
+        def det_error_2(data_x,lista_graf_2,b0_train,b1_train):
 
-            array_temp_x_1=np.array(data_1[[lista_graf_2[1],"ones"]].values.tolist())
+            array_temp_x_1=np.array(data_x[[lista_graf_2[1],"ones"]].values.tolist())
 
-            array_temp_y=np.array(data_1[lista_graf_2[0]].values.tolist())
+            array_temp_y=np.array(data_x[lista_graf_2[0]].values.tolist())
 
             array_b1_bo=np.array([b1_train,b0_train])
 
@@ -338,6 +342,67 @@ class Datos_Proyecto:
             error_train=abs((data_temp['(y_result - y)'].sum()))
 
             return error_train
+
+        def det_error_3(data_x_comparar,lista_graf_2,train_b0_x,train_b1_x,last_value_b0_x,last_value_b1_x, epchs__):
+
+            array_temp_x_1=np.array(data_x_comparar[[lista_graf_2[1],"ones"]].values.tolist())
+
+            array_temp_y=np.array(data_x_comparar[lista_graf_2[0]].values.tolist())
+
+
+            def error_3_3(array_temp_y__, array_temp_x_1__, b0_x, b1_x):
+
+                array_b1_bo=np.array([b1_x,b0_x])
+
+                array_y_result=np.dot(array_temp_x_1__,array_b1_bo)
+
+                data_temp=pd.DataFrame({'x':array_temp_x_1__[:, :1].reshape(-1).tolist(),'y_result':array_y_result.tolist(), "y":array_temp_y__.tolist()})
+
+                data_temp['(y_result - y)'] = data_temp['y_result'] - data_temp['y']
+
+                error_x__=abs((data_temp['(y_result - y)'].sum()))
+
+                return error_x__
+
+
+            error_train__=error_3_3(array_temp_y, array_temp_x_1, train_b0_x, train_b1_x)
+
+            error_epoch__=error_3_3(array_temp_y, array_temp_x_1, last_value_b0_x, last_value_b1_x)
+
+            fig, ax = plt.subplots()
+
+            dic_epoca_bo_b1__={}
+
+            dic_epoca_bo_b1__["Train_sklearn"]=error_train__
+            dic_epoca_bo_b1__[epchs__]=error_epoch__
+
+            for i in dic_epoca_bo_b1__:
+
+                #ax.set_yscale('log')
+
+                val_1=0
+
+                val_2=""
+
+                if i=="Train_sklearn":
+
+                    val_2=i
+                    pass
+
+                else:
+
+                    val_2=f"Epoch = {i}"
+
+
+                ax.bar(val_2, dic_epoca_bo_b1[i])
+
+            plt.title(f"MODELO diff(y-y_20) | Train_sklearn vs Epchs = {max_epoch}", fontsize = 12)
+            
+            plt.show()
+
+
+
+            return error_train__, error_epoch__
 
 
         cont_1=0
@@ -464,15 +529,15 @@ class Datos_Proyecto:
                     
                     dic_epoca_bo_b1[cont_1]=[b0_0,b1_1,error_actual_abs]
 
-                    data_3 = data_2.sort_values('error',ascending=True)
+                    data_3 = data_2.sort_values('diff(y-y_80)',ascending=True)
 
                     data_3.replace([np.inf, -np.inf], np.nan, inplace=True)
 
                     data_3=data_3.dropna()
 
-                    val_med=data_3["error"].mean()
+                    val_med=data_3["diff(y-y_80)"].mean()
 
-                    data_3 = data_3.loc[data_3['error'] >0].drop_duplicates(subset = ['error'])
+                    data_3 = data_3.loc[data_3['diff(y-y_80)'] >0].drop_duplicates(subset = ['diff(y-y_80)'])
 
                     print(data_2)
 
@@ -499,7 +564,7 @@ class Datos_Proyecto:
                     #keys_dic.add(3)
                     
                     fig, ax = plt.subplots()
-                    ax.set_title(f'ENTRENAMIENTO DEL MODELO {lista_graf_2[0]} vs {lista_graf_2[1]}')
+                    ax.set_title(f'ENTRENAMIENTO DEL MODELO | {lista_graf_2[0]} vs {lista_graf_2[1]}')
                     ax.set_xlabel(lista_graf_2[1])
                     ax.set_ylabel(lista_graf_2[0])
                     lista_y=np.array(data_1[lista_graf_2[0]].values.tolist())
@@ -560,7 +625,7 @@ class Datos_Proyecto:
                         print("-------------------------------------------------------------")
 
                         print(f"EPOCA = {i}")
-                        print(f"ERROR = {dic_epoca_bo_b1[i][2]}")
+                        print(f"diff(y-y_80) = {dic_epoca_bo_b1[i][2]}")
                         vect_1=np.array([dic_epoca_bo_b1[i][1]])
                         print(f"VALOR DE B1 ={dic_epoca_bo_b1[i][1]}")
                         vect_2=np.reshape(lista_x,(-1,1))
@@ -570,7 +635,7 @@ class Datos_Proyecto:
                         vect_4=np.reshape(array_list_1,(-1,1))
                         vect_b0=np.dot(vect_4,vect_3)
                         y = vect_b1x+vect_b0
-                        ax.plot(lista_x, y, label = f"{val} | ERROR ={round(dic_epoca_bo_b1[i][2],1)}")
+                        ax.plot(lista_x, y, label = f"{val} | diff(y-y_80) ={round(dic_epoca_bo_b1[i][2],1)}")
                         plt.tight_layout()
                         ax.legend()
 
@@ -582,9 +647,39 @@ class Datos_Proyecto:
 
                     print("-------------------------------------------------------------")
 
+                    plt.show()
 
+                    fig, ax = plt.subplots()
 
+                    for i in set(list_keys_dic):
 
+                        ax.set_yscale('log')
+
+                        val_1=0
+
+                        val_2=""
+
+                        if i=="Train_sklearn":
+
+                            val_2=i
+                            pass
+
+                        else:
+
+                            val_2=f"Epoch = {i}"
+
+                        if round(dic_epoca_bo_b1[i][2],1)<=0:
+
+                            val_1=1
+
+                        else:
+
+                            val_1=round(dic_epoca_bo_b1[i][2],1)
+
+                        ax.bar(val_2, val_1)
+
+                    plt.title(f"MODELO diff(y-y_80) | Train_sklearn vs Epchs ={max_epoch}", fontsize = 12)
+                    
                     plt.show()
 
 
@@ -633,7 +728,7 @@ class Datos_Proyecto:
                     
                     last_value_b1, last_epoch=graficas(data_3,["b1","epoch"])
                     last_value_b0, last_epoch=graficas(data_3,["b0","epoch"])
-                    last_value_error, last_epoch=graficas(data_3,["error","epoch"])
+                    last_value_error, last_epoch=graficas(data_3,["diff(y-y_80)","epoch"])
 
 
 
@@ -754,9 +849,13 @@ class Datos_Proyecto:
 
 
         #regressor = linear_model.LinearRegression()
+
+        error_train, error_epchs=det_error_3(data_1_comparar,lista_graf_2,train_b0,train_b1,last_value_b0,last_value_b1,last_epoch)
         
 
-        dic_result_train={"last_b1":last_value_b1, "last_b0":last_value_b0, "last_error":last_value_error, "last_epchs":last_epoch, "train_b0":train_b0, "train_b1":train_b1,"ERROR_train":error_train}
+        dic_result_train={"last_b1":last_value_b1, "last_b0":last_value_b0, "last_diff(y-y_80)":last_value_error, 
+            "last_epchs":last_epoch, "train_b0":train_b0, "train_b1":train_b1,"train_diff(y-y_80)":error_train,
+            "last_diff(y-y_20)":error_epchs,"train_diff(y-y_20)":error_train}
 
         return dic_result_train
 
@@ -887,11 +986,11 @@ lista_graf_2=[["PRECIO","PRECIO"],
 ######################################################################################################
 print("PRIMER_ANALISIS")
 lista_graf_2=["PRECIO","CALIDAD_MATERIAL"]
-epchs=10000
+epchs=6000
 b1=10000
-b0=-500
+b0=-5000
 error_1=500
-alpha_1=0.00001
+alpha_1=0.0001
 
 data_entrenamiento=datos_1.entrenamiento_80(lista_graf_2,b1,b0,error_1,epchs,alpha_1)
 
@@ -906,7 +1005,9 @@ b0_2=1000
 error_2=0
 alpha_2=0.00001
 
-#data_entrenamiento_2=datos_1.entrenamiento_80(lista_graf_3,b1_2,b0_2,error_2,epchs_2,alpha_2)
+data_entrenamiento_2=datos_1.entrenamiento_80(lista_graf_3,b1_2,b0_2,error_2,epchs_2,alpha_2)
+print(data_entrenamiento_2)
+
 
 
 lista_graf_4=["PRECIO","TOTAL_HABITACIONES"]
@@ -917,8 +1018,8 @@ b0_3=500
 error_3=5
 alpha_3=0.2
 
-#data_entrenamiento_3=datos_1.entrenamiento_80(lista_graf_4,b1_3,b0_3,error_3,epchs_3,alpha_3)
-
+data_entrenamiento_3=datos_1.entrenamiento_80(lista_graf_4,b1_3,b0_3,error_3,epchs_3,alpha_3)
+print(data_entrenamiento_3)
 
 lista_graf_5=["PRECIO","AÑO_CONSTRUCCION"]
 print("CUARTO_ANALISIS")
@@ -929,6 +1030,7 @@ error_4=5
 alpha_4=0.001
 
 data_entrenamiento_4=datos_1.entrenamiento_80(lista_graf_5,b1_4,b0_4,error_4,epchs_4,alpha_4)
+print(data_entrenamiento_4)
 
 lista_graf_6=["PRECIO","FRENTE"]
 print("QUINTO_ANALISIS")
@@ -939,6 +1041,7 @@ error_5=5
 alpha_5=0.0001
 
 data_entrenamiento_5=datos_1.entrenamiento_80(lista_graf_6,b1_5,b0_5,error_5,epchs_5,alpha_5)
+print(data_entrenamiento_5)
 
 input()
 
