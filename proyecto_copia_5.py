@@ -369,36 +369,88 @@ class Datos_Proyecto:
 
             error_epoch__=error_3_3(array_temp_y, array_temp_x_1, last_value_b0_x, last_value_b1_x)
 
-            fig, ax = plt.subplots()
-
             dic_epoca_bo_b1__={}
 
-            dic_epoca_bo_b1__["Train_sklearn"]=error_train__
-            dic_epoca_bo_b1__[epchs__]=error_epoch__
+            dic_epoca_bo_b1__["Train_sklearn"]=[error_train__,train_b0_x,train_b1_x]
+            dic_epoca_bo_b1__[epchs__]=[error_epoch__,last_value_b0_x,last_value_b1_x]
+
+            #--------------------------------------------------------------------------
+            #--------------- grafica de barras inicio --------------------------------
+
+            error_train__=error_3_3(array_temp_y, array_temp_x_1, train_b0_x, train_b1_x)
+
+            error_epoch__=error_3_3(array_temp_y, array_temp_x_1, last_value_b0_x, last_value_b1_x)
+
+
+
+            x = ["Train_sklearn", f"Epchs = {epchs__}"]
+            y = [error_train__, error_epoch__]
+
+            sns.barplot(x, y, color='blue').set(title=f'diff(y-y_20) | Train_sklearn vs Epchs = {epchs__} ')
+            plt.legend(labels=[f"Train_sklearn = {error_train__}", f"Epchs {round(epchs__,2)} = {round(error_epoch__,2)}"])
+            plt.show()
+
+            #--------------- grafica de barras fin -------------------------------------
+            #----------------------------------------------------------------------------
+
+            fig, ax = plt.subplots()
+            ax.set_title(f'COMPARACION DEL MODELO | {lista_graf_2[0]} vs {lista_graf_2[1]}')
+            ax.set_xlabel(lista_graf_2[1])
+            ax.set_ylabel(lista_graf_2[0])
+            lista_y=np.array(data_x_comparar[lista_graf_2[0]].values.tolist())
+            lista_x=np.array(data_x_comparar[lista_graf_2[1]].values.tolist())
+            array_list_1=[1]*(len(lista_x))
+            ax.scatter(lista_x,lista_y)    
 
             for i in dic_epoca_bo_b1__:
 
-                #ax.set_yscale('log')
+                val=""
+                try:
 
-                val_1=0
+                    val=f"EP = {int(i)}"
 
-                val_2=""
+                except:
 
-                if i=="Train_sklearn":
+                    val=f"{i}"
 
-                    val_2=i
                     pass
 
-                else:
 
-                    val_2=f"Epoch = {i}"
+                print("-------------------------------------------------------------")
 
+                #dic_epoca_bo_b1[cont_1]=[b0_0,b1_1,error_actual_abs]
 
-                ax.bar(val_2, dic_epoca_bo_b1[i])
+                print(f"EPOCA = {i}")
+                print(f"diff(y-y_20) = {dic_epoca_bo_b1__[i][0]}")
+                vect_1=np.array([dic_epoca_bo_b1__[i][2]])
+                print(f"VALOR DE B1 ={dic_epoca_bo_b1__[i][2]}")
+                vect_2=np.reshape(lista_x,(-1,1))
+                vect_b1x=np.dot(vect_2,vect_1)
+                vect_3=np.array([dic_epoca_bo_b1__[i][1]])
+                print(f"VALOR DE B0 ={dic_epoca_bo_b1__[i][1]}")
+                vect_4=np.reshape(array_list_1,(-1,1))
+                vect_b0=np.dot(vect_4,vect_3)
+                y = vect_b1x+vect_b0
+                ax.plot(lista_x, y, label = f"{val} | diff(y-y_20) ={round(dic_epoca_bo_b1__[i][0],1)}")
+                plt.tight_layout()
+                ax.legend()
 
-            plt.title(f"MODELO diff(y-y_20) | Train_sklearn vs Epchs = {max_epoch}", fontsize = 12)
-            
+            print("-------------------------------------------------------------")
+
             plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -649,41 +701,17 @@ class Datos_Proyecto:
 
                     plt.show()
 
-                    fig, ax = plt.subplots()
 
-                    for i in set(list_keys_dic):
+                    #--------------- grafica de barras inicio --------------------------------
 
-                        ax.set_yscale('log')
+                    x = list(dic_epoca_bo_b1.keys())
+                    y = [ y.append(dic_epoca_bo_b1[i][2]) for i in dic_epoca_bo_b1 ]
 
-                        val_1=0
-
-                        val_2=""
-
-                        if i=="Train_sklearn":
-
-                            val_2=i
-                            pass
-
-                        else:
-
-                            val_2=f"Epoch = {i}"
-
-                        if round(dic_epoca_bo_b1[i][2],1)<=0:
-
-                            val_1=1
-
-                        else:
-
-                            val_1=round(dic_epoca_bo_b1[i][2],1)
-
-                        ax.bar(val_2, val_1)
-
-                    plt.title(f"MODELO diff(y-y_80) | Train_sklearn vs Epchs ={max_epoch}", fontsize = 12)
-                    
+                    sns.barplot(x, y, color='blue').set(title=f'diff(y-y_80) | Train_sklearn vs Epchs = {epchs__} ')
+                    plt.legend(labels=[f"Train_sklearn = {error_train__}", f"Epchs {round(epchs__,2)} = {round(error_epoch__,2)}"])
                     plt.show()
 
-
-
+                    #--------------- grafica de barras fin -------------------------------------
 
                     #data_2=pd.DataFrame(columns=["b1","b0","error","epoch","pend_1","pend_2"])
 
