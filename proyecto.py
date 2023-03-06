@@ -58,6 +58,8 @@ class Datos_Proyecto:
 
         self.data_Reducido_comparar=self.dataframe_total
 
+        self.porcentaje_reducir_self=0
+
 
 
 
@@ -66,6 +68,8 @@ class Datos_Proyecto:
         lista_reducir=[]
 
         if porcentaje_reducir<1 and porcentaje_reducir>0: # condicionante para reducir
+
+            self.porcentaje_reducir_self=porcentaje_reducir
 
             cantidad_filas_porcentaje=int((self.cantidad_filas)*porcentaje_reducir) #cantidad de filas del porcentaje a reducir
 
@@ -131,50 +135,9 @@ class Datos_Proyecto:
             
         return data_valores #regresa un dataframe con todos los valores
 
-    def histograma_parejas(self,list_graf): #metodo para obtener los valores max_min_medio_ptp_desvi, ingresar 
+    def histograma_parejas(self,list_graf): #histogramas
 
         for i in list_graf:
-
-            #------- inicio comprobar distribucion --------------------
-
-            #self.data_Reducido_trabajar.sort_values(i[1])
-
-            #data_1=self.data_Reducido_trabajar[i].dropna() #DATAFRAME DE CADA COLUMNA i
-
-            #data_1=data_1.value_counts() #para contar la catidad de valores que hay de un mismo valor 
-
-            #data_1_dic=data_1.to_dict()
-
-            #keys = data_1_dic.keys()
-            #sorted_keys = sorted(keys)
-
-            #data_2_dic = {key:data_1_dic[key] for key in sorted_keys}
-
-            #print(data_2_dic)
-
-            #------- fin comprobar distribucion --------------------              
-
-            #------- inicio forma 1 ------------
-
-            #self.data_Reducido_trabajar[i].dropna().hist()
-
-            #plt.show()
-
-            #------- fin forma 1 ------------
-
-            #------- inicio forma 2 ------------
-
-            #data_1=self.data_Reducido_trabajar[i].dropna() #DATAFRAME DE CADA COLUMNA i
-       
-            #res = pd.Series(data_1,name="Range")
-
-            #plot = sns.distplot(res,rug=False,hist=True)
-            
-            #plt.show()
-
-            #------- fin forma 2 ------------
-
-            #------- inicio forma 3 ------------
 
             try:
 
@@ -184,7 +147,7 @@ class Datos_Proyecto:
 
                 plot = sns.displot(data = df, x=i )
 
-                plt.title("")
+                plt.title(f"DATA ({(1-self.porcentaje_reducir_self)*100})")
                 plt.xticks(fontsize=9, rotation=45)
                 plt.xlabel(i,fontsize=12)
                 plt.ylabel('Counted',fontsize=12)
@@ -194,11 +157,9 @@ class Datos_Proyecto:
                 print("ERROR AL GENERAR LA GRAFICA DE LOS HISTOGRAMAS")
                 pass
 
-            #------- fin forma 3 ------------
-
         plt.show()
 
-    def factor_correlacion(self,lista_graf_2,num_parejas):
+    def factor_correlacion(self,lista_graf_2,num_parejas): # valores de correlacion
 
         list_corr=[]
 
@@ -240,7 +201,7 @@ class Datos_Proyecto:
 
 
                     plt.scatter(lista_x,lista_y)
-                    plt.title(f"{key} ---- Corr:{corr_value}", fontsize = 12)
+                    plt.title(f"{key} ---- Corr:{corr_value}  DATA ({(1-self.porcentaje_reducir_self)*100})", fontsize = 12)
                     plt.xticks(fontsize=9, rotation=45)
                     plt.xlabel(i[1],fontsize=12)
                     plt.ylabel(i[0],fontsize=12)
@@ -270,7 +231,7 @@ class Datos_Proyecto:
                 
                 pass
 
-    def entrenamiento_80(self,lista_graf_2,b1,b0,error,epchs,alpha):
+    def entrenamiento_x(self,lista_graf_2,b1,b0,error,epchs,alpha): # entrenamiento 80 
 
         data_1=self.data_Reducido_trabajar[lista_graf_2].dropna()
 
@@ -286,9 +247,9 @@ class Datos_Proyecto:
 
         data_1_comparar.insert(2, "ones", array_list_1_2)
 
-        data_2=pd.DataFrame(columns=["b1","b0","diff(y-y_80)","epoch","pend_1","pend_2"])
+        data_2=pd.DataFrame(columns=["b1","b0",f"diff(y-y_{(1-self.porcentaje_reducir_self)*100})","epoch","pend_1","pend_2"])
 
-        def det_error(data_1,lista_graf_2,b0_0,b1_1,b0_ant,b1_ant,error_ant,error_ant_x,alpha_x_y):
+        def det_error(data_1,lista_graf_2,b0_0,b1_1,b0_ant,b1_ant,error_ant,error_ant_x,alpha_x_y): # error para el entrenamiento 80 
 
             array_temp_x_1=np.array(data_1[[lista_graf_2[1],"ones"]].values.tolist())
 
@@ -325,7 +286,7 @@ class Datos_Proyecto:
             return b_1_next, b_0_next, error_actual, b1_1, b0_0, pend_1, pend_2,error_actual_x
 
 
-        def det_error_2(data_x,lista_graf_2,b0_train,b1_train):
+        def det_error_2(data_x,lista_graf_2,b0_train,b1_train): # error general cuando se tienen valores de b0 y b1
 
             array_temp_x_1=np.array(data_x[[lista_graf_2[1],"ones"]].values.tolist())
 
@@ -343,7 +304,7 @@ class Datos_Proyecto:
 
             return error_train
 
-        def det_error_3(data_x_comparar,lista_graf_2,train_b0_x,train_b1_x,last_value_b0_x,last_value_b1_x, epchs__):
+        def det_error_3(data_x_comparar,lista_graf_2,train_b0_x,train_b1_x,last_value_b0_x,last_value_b1_x, epchs__): # graficar y comparar con el 20% o con cualquier dato
 
             array_temp_x_1=np.array(data_x_comparar[[lista_graf_2[1],"ones"]].values.tolist())
 
@@ -386,7 +347,7 @@ class Datos_Proyecto:
             x = ["Train_sklearn", f"Epchs = {epchs__}"]
             y = [error_train__, error_epoch__]
 
-            sns.barplot(x, y, color='blue').set(title=f'diff(y-y_20) | Train_sklearn vs Epchs = {epchs__} ')
+            sns.barplot(x, y, color='blue').set(title=f'diff(y-y_{(self.porcentaje_reducir_self)*100}) | Train_sklearn vs Epchs = {epchs__} ')
             plt.legend(labels=[f"Train_sklearn = {error_train__}", f"Epchs {round(epchs__,2)} = {round(error_epoch__,2)}"])
             plt.show()
 
@@ -394,7 +355,7 @@ class Datos_Proyecto:
             #----------------------------------------------------------------------------
 
             fig, ax = plt.subplots()
-            ax.set_title(f'COMPARACION DEL MODELO | {lista_graf_2[0]} vs {lista_graf_2[1]}')
+            ax.set_title(f'COMPARACION DEL MODELO ({(self.porcentaje_reducir_self)*100})| {lista_graf_2[0]} vs {lista_graf_2[1]}')
             ax.set_xlabel(lista_graf_2[1])
             ax.set_ylabel(lista_graf_2[0])
             lista_y=np.array(data_x_comparar[lista_graf_2[0]].values.tolist())
@@ -421,7 +382,7 @@ class Datos_Proyecto:
                 #dic_epoca_bo_b1[cont_1]=[b0_0,b1_1,error_actual_abs]
 
                 print(f"EPOCA = {i}")
-                print(f"diff(y-y_20) = {dic_epoca_bo_b1__[i][0]}")
+                print(f"diff(y-y_{(self.porcentaje_reducir_self)*100}) = {dic_epoca_bo_b1__[i][0]}")
                 vect_1=np.array([dic_epoca_bo_b1__[i][2]])
                 print(f"VALOR DE B1 ={dic_epoca_bo_b1__[i][2]}")
                 vect_2=np.reshape(lista_x,(-1,1))
@@ -431,28 +392,13 @@ class Datos_Proyecto:
                 vect_4=np.reshape(array_list_1,(-1,1))
                 vect_b0=np.dot(vect_4,vect_3)
                 y = vect_b1x+vect_b0
-                ax.plot(lista_x, y, label = f"{val} | diff(y-y_20) ={round(dic_epoca_bo_b1__[i][0],1)}")
+                ax.plot(lista_x, y, label = f"{val} | diff(y-y_{(self.porcentaje_reducir_self)*100}) ={round(dic_epoca_bo_b1__[i][0],1)}")
                 plt.tight_layout()
                 ax.legend()
 
             print("-------------------------------------------------------------")
 
             plt.show()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
             return error_train__, error_epoch__
 
@@ -581,15 +527,15 @@ class Datos_Proyecto:
                     
                     dic_epoca_bo_b1[cont_1]=[b0_0,b1_1,error_actual_abs]
 
-                    data_3 = data_2.sort_values('diff(y-y_80)',ascending=True)
+                    data_3 = data_2.sort_values(f'diff(y-y_{(1-self.porcentaje_reducir_self)*100})',ascending=True)
 
                     data_3.replace([np.inf, -np.inf], np.nan, inplace=True)
 
                     data_3=data_3.dropna()
 
-                    val_med=data_3["diff(y-y_80)"].mean()
+                    val_med=data_3[f"diff(y-y_{(1-self.porcentaje_reducir_self)*100})"].mean()
 
-                    data_3 = data_3.loc[data_3['diff(y-y_80)'] >0].drop_duplicates(subset = ['diff(y-y_80)'])
+                    data_3 = data_3.loc[data_3[f'diff(y-y_{(1-self.porcentaje_reducir_self)*100})'] >0].drop_duplicates(subset = [f'diff(y-y_{(1-self.porcentaje_reducir_self)*100})'])
 
                     print(data_2)
 
@@ -616,7 +562,7 @@ class Datos_Proyecto:
                     #keys_dic.add(3)
                     
                     fig, ax = plt.subplots()
-                    ax.set_title(f'ENTRENAMIENTO DEL MODELO | {lista_graf_2[0]} vs {lista_graf_2[1]}')
+                    ax.set_title(f'ENTRENAMIENTO DEL MODELO ({(1-self.porcentaje_reducir_self)*100}) | {lista_graf_2[0]} vs {lista_graf_2[1]}')
                     ax.set_xlabel(lista_graf_2[1])
                     ax.set_ylabel(lista_graf_2[0])
                     lista_y=np.array(data_1[lista_graf_2[0]].values.tolist())
@@ -677,7 +623,7 @@ class Datos_Proyecto:
                         print("-------------------------------------------------------------")
 
                         print(f"EPOCA = {i}")
-                        print(f"diff(y-y_80) = {dic_epoca_bo_b1[i][2]}")
+                        print(f"diff(y-y_{(1-self.porcentaje_reducir_self)*100}) = {dic_epoca_bo_b1[i][2]}")
                         vect_1=np.array([dic_epoca_bo_b1[i][1]])
                         print(f"VALOR DE B1 ={dic_epoca_bo_b1[i][1]}")
                         vect_2=np.reshape(lista_x,(-1,1))
@@ -687,7 +633,7 @@ class Datos_Proyecto:
                         vect_4=np.reshape(array_list_1,(-1,1))
                         vect_b0=np.dot(vect_4,vect_3)
                         y = vect_b1x+vect_b0
-                        ax.plot(lista_x, y, label = f"{val} | diff(y-y_80) ={round(dic_epoca_bo_b1[i][2],1)}")
+                        ax.plot(lista_x, y, label = f"{val} | diff(y-y_{(1-self.porcentaje_reducir_self)*100}) ={round(dic_epoca_bo_b1[i][2],1)}")
                         plt.tight_layout()
                         ax.legend()
 
@@ -707,7 +653,7 @@ class Datos_Proyecto:
                     x = ["Train_sklearn",max_epoch]
                     y = [dic_epoca_bo_b1["Train_sklearn"][2],dic_epoca_bo_b1[max_epoch][2]]
 
-                    sns.barplot(x, y, color='blue').set(title=f'diff(y-y_80) | Train_sklearn vs Epchs = {max_epoch} ')
+                    sns.barplot(x, y, color='blue').set(title=f'diff(y-y_{(1-self.porcentaje_reducir_self)*100}) | Train_sklearn vs Epchs = {max_epoch} ')
                     plt.legend(labels=[f"Train_sklearn = {y[0]}", f"Epchs {max_epoch} = {round(y[1],2)}"])
                     plt.show()
 
@@ -756,7 +702,7 @@ class Datos_Proyecto:
                     
                     last_value_b1, last_epoch=graficas(data_3,["b1","epoch"])
                     last_value_b0, last_epoch=graficas(data_3,["b0","epoch"])
-                    last_value_error, last_epoch=graficas(data_3,["diff(y-y_80)","epoch"])
+                    last_value_error, last_epoch=graficas(data_3,[f"diff(y-y_{(1-self.porcentaje_reducir_self)*100})","epoch"])
 
 
 
@@ -769,75 +715,6 @@ class Datos_Proyecto:
                     break
 
 
-                #if cont_1>3:
-
-                    # if abs(pent_ant_1)*pend_1==abs(pend_1)*pent_ant_1 or abs(pent_ant_2)*pend_2==abs(pend_2)*pent_ant_2:
-
-                    #     nuevo_registro = {"b1":b1_1,"b0":b0_0,"error":error_actual,"epoch":cont_1,"pend_1":pend_1,"pend_2":pend_2}
-     
-                    #     data_2 = data_2.append(nuevo_registro, ignore_index=True)
-
-                    #     list_epocs.append(cont_1)
-
-                    #     print(data_2)
-
-                    #     list_bo.append(b0_0)
-                    #     list_b1.append(b1_1)
-
-
-                    #     break
-
-
-                    # if error_ant>error_actual or abs(error_ant)*error_actual==abs(error_actual)*error_ant:         
-
-                    #     data_2.loc[cont_idex]=[b1_1, b0_0,error_actual,cont_1,pend_1,pend_2] #Añadiendo una fila al dataframe
-
-                    #     cont_idex+=1
-
-                    #     list_epocs.append(cont_1)
-
-                    #     #print(data_2)
-
-                    #     dic_epoca_bo_b1[cont_1]=[b0_0,b1_1]
-
-                        # fig = plt.figure(figsize = (9,6))
-                        # ax =  fig.add_axes([0.1,0.1,0.7,0.7])
-                        # ax.set_title('ENTRENAMIENTO DEL MODELO')
-                        # ax.set_xlabel(lista_graf_2[1])
-                        # ax.set_ylabel(lista_graf_2[0])
-                        # lista_y=np.array(data_1[lista_graf_2[0]].values.tolist())
-                        # lista_x=np.array(data_1[lista_graf_2[1]].values.tolist())
-                        # array_list_1=[1]*(len(lista_x))
-                        # ax.scatter(lista_x,lista_y)
-
-                        # vect_1=np.array([b1_1])
-                        # vect_2=np.reshape(lista_x,(-1,1))
-                        # vect_b1x=np.dot(vect_2,vect_1)
-                        # vect_3=np.array([b0_0])
-                        # vect_4=np.reshape(array_list_1,(-1,1))
-                        # vect_b0=np.dot(vect_4,vect_3)
-                        # y = vect_b1x+vect_b0
-                        # ax.plot(lista_x, y, '-r', label='Y=b1x+b0')
-
-                        # plt.show()
-
-                        #break
-
-                    # if error_actual<=0 or float(pend_1)==float("NaN"):
-
-                    #     nuevo_registro = {"b1":b1_1,"b0":b0_0,"error":error_actual,"epoch":cont_1,"pend_1":pend_1,"pend_2":pend_2}
-     
-                    #     data_2 = data_2.append(nuevo_registro, ignore_index=True)
-
-                    #     list_epocs.append(cont_1)
-
-                    #     print(data_2)
-                    #     list_bo.append(b0_0)
-                    #     list_b1.append(b1_1)
-
-                    #     break
-
-
             cont_1+=1
 
             cont_2+=1
@@ -845,55 +722,17 @@ class Datos_Proyecto:
             cont_3+=1
 
             
-        # fig = plt.figure(figsize = (9,6))
-        # ax =  fig.add_axes([0.1,0.1,0.7,0.7])
-        # ax.set_title('ENTRENAMIENTO DEL MODELO')
-        # ax.set_xlabel(lista_graf_2[1])
-        # ax.set_ylabel(lista_graf_2[0])
-        # lista_y=np.array(data_1[lista_graf_2[0]].values.tolist())
-        # lista_x=np.array(data_1[lista_graf_2[1]].values.tolist())
-        # array_list_1=[1]*(len(lista_x))
-        # ax.scatter(lista_x,lista_y)
-
-        # print(lista_y)
-
-        # print(lista_x)
-
-        # for contador, i in enumerate(list_b1, start=0):
-
-        #     vect_1=np.array([i])
-        #     vect_2=np.reshape(lista_x,(-1,1))
-        #     vect_b1x=np.dot(vect_2,vect_1)
-        #     vect_3=np.array([list_bo[contador]])
-        #     vect_4=np.reshape(array_list_1,(-1,1))
-        #     vect_b0=np.dot(vect_4,vect_3)
-        #     y = vect_b1x+vect_b0
-        #     ax.plot(lista_x, y, '-r', label='Y=b1x+b0')
-
-        # plt.show()
-
-
         print(f"Con un error inicial de alpha={alpha} y con valores de b1={b1} y b0={b0} se necesitaron {len(list_epocs)} epocas")
 
-
-        #regressor = linear_model.LinearRegression()
 
         error_train, error_epchs=det_error_3(data_1_comparar,lista_graf_2,train_b0,train_b1,last_value_b0,last_value_b1,last_epoch)
         
 
-        dic_result_train={"last_b1":last_value_b1, "last_b0":last_value_b0, "last_diff(y-y_80)":last_value_error, 
-            "last_epchs":last_epoch, "train_b0":train_b0, "train_b1":train_b1,"train_diff(y-y_80)":error_train,
-            "last_diff(y-y_20)":error_epchs,"train_diff(y-y_20)":error_train}
+        dic_result_train={"last_b1":last_value_b1, "last_b0":last_value_b0, f"last_diff(y-y_{(1-self.porcentaje_reducir_self)*100})":last_value_error, 
+            "last_epchs":last_epoch, "train_b0":train_b0, "train_b1":train_b1,f"train_diff(y-y_{(1-self.porcentaje_reducir_self)*100})":error_train,
+            f"last_diff(y-y_{(self.porcentaje_reducir_self)*100})":error_epchs,f"train_diff(y-y_{(self.porcentaje_reducir_self)*100})":error_train}
 
         return dic_result_train
-
-
-
-
-
-        input("Enter para continuar")
-
-               
 
 
 #-------------------------------------  fin data frame cargar datos -------------------------------------
@@ -951,7 +790,7 @@ data_valores=datos_1.valor_max_med_min_ptp_desv(lista_enteros,4) #obtener la med
 
 #------------------------------------- fin  max_min_medio_ptp_desvi ------------------------------------------
 
-#print(data_valores)
+print(data_valores)
 
 
 
@@ -1020,7 +859,7 @@ b0=-5000
 error_1=500
 alpha_1=0.0001
 
-data_entrenamiento=datos_1.entrenamiento_80(lista_graf_2,b1,b0,error_1,epchs,alpha_1)
+data_entrenamiento=datos_1.entrenamiento_x(lista_graf_2,b1,b0,error_1,epchs,alpha_1)
 
 print(data_entrenamiento)
 
@@ -1033,7 +872,7 @@ b0_2=1000
 error_2=0
 alpha_2=0.00001
 
-data_entrenamiento_2=datos_1.entrenamiento_80(lista_graf_3,b1_2,b0_2,error_2,epchs_2,alpha_2)
+data_entrenamiento_2=datos_1.entrenamiento_x(lista_graf_3,b1_2,b0_2,error_2,epchs_2,alpha_2)
 print(data_entrenamiento_2)
 
 
@@ -1046,7 +885,7 @@ b0_3=500
 error_3=5
 alpha_3=0.2
 
-data_entrenamiento_3=datos_1.entrenamiento_80(lista_graf_4,b1_3,b0_3,error_3,epchs_3,alpha_3)
+data_entrenamiento_3=datos_1.entrenamiento_x(lista_graf_4,b1_3,b0_3,error_3,epchs_3,alpha_3)
 print(data_entrenamiento_3)
 
 lista_graf_5=["PRECIO","AÑO_CONSTRUCCION"]
@@ -1057,7 +896,7 @@ b0_4=-500
 error_4=5
 alpha_4=0.001
 
-data_entrenamiento_4=datos_1.entrenamiento_80(lista_graf_5,b1_4,b0_4,error_4,epchs_4,alpha_4)
+data_entrenamiento_4=datos_1.entrenamiento_x(lista_graf_5,b1_4,b0_4,error_4,epchs_4,alpha_4)
 print(data_entrenamiento_4)
 
 lista_graf_6=["PRECIO","FRENTE"]
@@ -1068,10 +907,10 @@ b0_5=-500
 error_5=5
 alpha_5=0.0001
 
-data_entrenamiento_5=datos_1.entrenamiento_80(lista_graf_6,b1_5,b0_5,error_5,epchs_5,alpha_5)
+data_entrenamiento_5=datos_1.entrenamiento_x(lista_graf_6,b1_5,b0_5,error_5,epchs_5,alpha_5)
 print(data_entrenamiento_5)
 
-input()
+input("Enter para finalizar")
 
 
 #matrix_1Reducida=dataframe_elemento.drop(lista_surtida, axis=1)
