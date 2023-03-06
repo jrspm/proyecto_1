@@ -704,11 +704,11 @@ class Datos_Proyecto:
 
                     #--------------- grafica de barras inicio --------------------------------
 
-                    x = list(dic_epoca_bo_b1.keys())
-                    y = [ y.append(dic_epoca_bo_b1[i][2]) for i in dic_epoca_bo_b1 ]
+                    x = ["Train_sklearn",max_epoch]
+                    y = [dic_epoca_bo_b1["Train_sklearn"][2],dic_epoca_bo_b1[max_epoch][2]]
 
-                    sns.barplot(x, y, color='blue').set(title=f'diff(y-y_80) | Train_sklearn vs Epchs = {epchs__} ')
-                    plt.legend(labels=[f"Train_sklearn = {error_train__}", f"Epchs {round(epchs__,2)} = {round(error_epoch__,2)}"])
+                    sns.barplot(x, y, color='blue').set(title=f'diff(y-y_80) | Train_sklearn vs Epchs = {max_epoch} ')
+                    plt.legend(labels=[f"Train_sklearn = {y[0]}", f"Epchs {max_epoch} = {round(y[1],2)}"])
                     plt.show()
 
                     #--------------- grafica de barras fin -------------------------------------
