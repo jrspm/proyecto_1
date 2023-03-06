@@ -18,7 +18,7 @@ import seaborn as sns
 
 import matplotlib.pyplot as plt
 
-from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.linear_model import LinearRegression
 
 #------------------------------------- fin paquetes necesarios -------------------------------------
 
@@ -320,6 +320,26 @@ class Datos_Proyecto:
 
             return b_1_next, b_0_next, error_actual, b1_1, b0_0, pend_1, pend_2,error_actual_x
 
+
+        def det_error_2(data_1,lista_graf_2,b0_train,b1_train):
+
+            array_temp_x_1=np.array(data_1[[lista_graf_2[1],"ones"]].values.tolist())
+
+            array_temp_y=np.array(data_1[lista_graf_2[0]].values.tolist())
+
+            array_b1_bo=np.array([b1_train,b0_train])
+
+            array_y_result=np.dot(array_temp_x_1,array_b1_bo)
+
+            data_temp=pd.DataFrame({'x':array_temp_x_1[:, :1].reshape(-1).tolist(),'y_result':array_y_result.tolist(), "y":array_temp_y.tolist()})
+
+            data_temp['(y_result - y)'] = data_temp['y_result'] - data_temp['y']
+
+            error_train=abs((data_temp['(y_result - y)'].sum()))
+
+            return error_train
+
+
         cont_1=0
 
         cont_2=0
@@ -342,7 +362,9 @@ class Datos_Proyecto:
         last_epoch=0
         last_value_b0=0
         last_value_error=0
-
+        error_train=0
+        train_b1=0
+        train_b0=0
 
         while True:
 
@@ -464,7 +486,7 @@ class Datos_Proyecto:
 
                     #print(data_menor_media_snan)
 
-                    selected_3_rows=data_menor_media_snan[['epoch']].head(n=2)
+                    selected_3_rows=data_menor_media_snan[['epoch']].head(n=1)
 
                     list_epochs_menor_media=set(selected_3_rows['epoch'].values.tolist())
 
@@ -474,7 +496,7 @@ class Datos_Proyecto:
 
                     keys_dic.add(0)
 
-                    keys_dic.add(3)
+                    #keys_dic.add(3)
                     
                     fig, ax = plt.subplots()
                     ax.set_title(f'ENTRENAMIENTO DEL MODELO {lista_graf_2[0]} vs {lista_graf_2[1]}')
@@ -498,11 +520,42 @@ class Datos_Proyecto:
                     data_3 = data_3.loc[data_3['epoch'] < max_epoch].drop_duplicates(subset = ['epoch'])
 
 
+                    array_temp_x_1=np.array(data_1[lista_graf_2[1]].values.tolist())
+
+                    array_temp_y=np.array(data_1[lista_graf_2[0]].values.tolist())
+
+                    array_temp_x_1=array_temp_x_1.reshape(-1,1)
+                    array_temp_y=array_temp_y.reshape(-1,1)
+
+
+                    model=LinearRegression()
+
+                    model.fit(array_temp_x_1,array_temp_y)
+                    R_sq = model.score(array_temp_x_1,array_temp_y)
+
+                    train_b1=(model.coef_).tolist()[0][0]
+                    train_b0=(model.intercept_).tolist()[0]
+
+                    error_train=det_error_2(data_1,lista_graf_2,train_b0,train_b1)
+
+                    dic_epoca_bo_b1["Train_sklearn"]=[train_b0,train_b1,error_train]
+
+                    list_keys_dic.append("Train_sklearn")
 
 
                     for i in set(list_keys_dic):
 
-                        i=int(i)
+                        val=""
+                        try:
+
+                            val=f"EP = {int(i)}"
+
+                        except:
+
+                            val=f"{i}"
+
+                            pass
+
 
                         print("-------------------------------------------------------------")
 
@@ -517,7 +570,7 @@ class Datos_Proyecto:
                         vect_4=np.reshape(array_list_1,(-1,1))
                         vect_b0=np.dot(vect_4,vect_3)
                         y = vect_b1x+vect_b0
-                        ax.plot(lista_x, y, label = f"EP = {i} | ERROR ={round(dic_epoca_bo_b1[i][2],1)}")
+                        ax.plot(lista_x, y, label = f"{val} | ERROR ={round(dic_epoca_bo_b1[i][2],1)}")
                         plt.tight_layout()
                         ax.legend()
 
@@ -528,6 +581,9 @@ class Datos_Proyecto:
                             break
 
                     print("-------------------------------------------------------------")
+
+
+
 
                     plt.show()
 
@@ -698,30 +754,9 @@ class Datos_Proyecto:
 
 
         #regressor = linear_model.LinearRegression()
+        
 
-        array_temp_x_1=np.array(data_1[lista_graf_2[1]].values.tolist())
-
-        array_temp_y=np.array(data_1[lista_graf_2[0]].values.tolist())
-
-        array_temp_x_1=array_temp_x_1.reshape(1,-1)
-        array_temp_y=array_temp_y.reshape(1,-1)
-
-
-        #regressor.fit(array_temp_x_1, array_temp_y)
-
-        predictions=model.predict(array_temp_x_1)
-
-        r2=r2_score(array_temp_y, predictions)
-
-        rmse=mean_squared_error(array_temp_y,predictions, squared=False)
-
-        train_b1=r2
-
-        train_b0=rmse
-
-        print(train_b1,train_b0)
-
-        dic_result_train={"last_b1":last_value_b1, "last_b0":last_value_b0, "last_error":last_value_error, "last_epchs":last_epoch, "train_b0":train_b0, "train_b1":train_b1}
+        dic_result_train={"last_b1":last_value_b1, "last_b0":last_value_b0, "last_error":last_value_error, "last_epchs":last_epoch, "train_b0":train_b0, "train_b1":train_b1,"ERROR_train":error_train}
 
         return dic_result_train
 
@@ -852,11 +887,11 @@ lista_graf_2=[["PRECIO","PRECIO"],
 ######################################################################################################
 print("PRIMER_ANALISIS")
 lista_graf_2=["PRECIO","CALIDAD_MATERIAL"]
-epchs=6000
+epchs=10000
 b1=10000
 b0=-500
 error_1=500
-alpha_1=0.0001
+alpha_1=0.00001
 
 data_entrenamiento=datos_1.entrenamiento_80(lista_graf_2,b1,b0,error_1,epchs,alpha_1)
 
